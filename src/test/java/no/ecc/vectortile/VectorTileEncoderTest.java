@@ -1,0 +1,136 @@
+/*****************************************************************
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ ****************************************************************/
+package no.ecc.vectortile;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import junit.framework.TestCase;
+import mapnik.vector.VectorTile.tile.GeomType;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+
+public class VectorTileEncoderTest extends TestCase {
+
+    private GeometryFactory gf = new GeometryFactory();
+
+    public void testEncode() {
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+        Geometry geometry = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
+
+        cs.add(new Coordinate(33, 72));
+        Geometry geometry2 = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
+
+        Map<String, Object> attributes = new HashMap<String, Object>();
+
+        vtm.addFeature("DEPCNT", attributes, geometry);
+        vtm.addFeature("DEPCNT", attributes, geometry2);
+
+        byte[] encoded = vtm.encode();
+        assertNotSame(0, encoded.length);
+    }
+
+    public void testToGeomType() {
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+        Geometry geometry = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
+        assertEquals(GeomType.LineString, VectorTileEncoder.toGeomType(geometry));
+    }
+
+    public void testCommands() {
+
+        // Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(
+                cs.toArray(new Coordinate[cs.size()]), true);
+        assertNotNull(commands);
+        // Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertCommand(18, commands, 3);
+        assertCommand(10, commands, 4);
+        assertCommand(12, commands, 5);
+        assertCommand(24, commands, 6);
+        assertCommand(44, commands, 7);
+        assertCommand(15, commands, 8);
+        assertEquals(9, commands.size());
+
+    }
+
+    public void testCommandsFilter() {
+
+        // Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(
+                cs.toArray(new Coordinate[cs.size()]), true);
+        assertNotNull(commands);
+        // Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertCommand(18, commands, 3);
+        assertCommand(10, commands, 4);
+        assertCommand(12, commands, 5);
+        assertCommand(24, commands, 6);
+        assertCommand(44, commands, 7);
+        assertCommand(15, commands, 8);
+        assertEquals(9, commands.size());
+
+    }
+
+    private void assertCommand(int expected, List<Integer> commands, int index) {
+        assertEquals(expected, commands.get(index).intValue());
+    }
+
+    public void testCommandAndLength() {
+        assertEquals(9, VectorTileEncoder.commandAndLength(Command.MoveTo, 1));
+        assertEquals(18, VectorTileEncoder.commandAndLength(Command.LineTo, 2));
+        assertEquals(15, VectorTileEncoder.commandAndLength(Command.ClosePath, 1));
+    }
+
+    public void testZigZagEncode() {
+        // https://developers.google.com/protocol-buffers/docs/encoding#types
+        assertEquals(0, VectorTileEncoder.zigZagEncode(0));
+        assertEquals(1, VectorTileEncoder.zigZagEncode(-1));
+        assertEquals(2, VectorTileEncoder.zigZagEncode(1));
+        assertEquals(3, VectorTileEncoder.zigZagEncode(-2));
+    }
+
+}
