@@ -46,6 +46,22 @@ public class VectorTileEncoder {
 
     private final Geometry clipGeometry;
 
+    /**
+     * Create a {@link VectorTileEncoder} with the default extent of 4096.
+     */
+	public VectorTileEncoder() {
+		this(4096);
+	}
+
+	/**
+	 * Create a {@link VectorTileEncoder} with the given extent value.
+	 * <p>
+	 * The extent value control how detailed the coordinates are encoded in the
+	 * vector tile. 4096 is a good default, 256 can be used to reduce density.
+	 * 
+	 * @param extent
+	 *            a int with extent value. 4096 is a good value.
+	 */
     public VectorTileEncoder(int extent) {
         this.extent = extent;
 
