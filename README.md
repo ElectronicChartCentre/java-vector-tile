@@ -23,5 +23,6 @@ byte[] encoded = encoder.encode();
 
 # Credits
 
-Mapbox for their [vector tile spec](https://github.com/mapbox/vector-tile-spec) and 
-Google for their [Protocol Buffers](https://code.google.com/p/protobuf/)
+Mapbox for their [vector tile spec](https://github.com/mapbox/vector-tile-spec), 
+Google for their [Protocol Buffers](https://code.google.com/p/protobuf/) and
+[JTS](http://sourceforge.net/projects/jts-topo-suite/)
