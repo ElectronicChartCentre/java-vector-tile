@@ -18,6 +18,7 @@
  ****************************************************************/
 package no.ecc.vectortile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,6 +132,30 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(1, VectorTileEncoder.zigZagEncode(-1));
         assertEquals(2, VectorTileEncoder.zigZagEncode(1));
         assertEquals(3, VectorTileEncoder.zigZagEncode(-2));
+    }
+    
+    public void testNullAttributeValue() throws IOException {
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+        Geometry geometry = gf.createPoint(new Coordinate(3, 6));
+
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        attributes.put("key1", "value1");
+        attributes.put("key2", null);
+        attributes.put("key3", "value3");
+
+        vtm.addFeature("DEPCNT", attributes, geometry);
+
+        byte[] encoded = vtm.encode();
+        assertNotSame(0, encoded.length);
+        
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        decoder.decode(encoded);
+        assertEquals(1, decoder.getFeatures("DEPCNT").size());
+        Map<String, Object> decodedAttributes = decoder.getFeatures("DEPCNT").get(0).getAttributes();
+        assertEquals("value1", decodedAttributes.get("key1"));
+        assertEquals("value3", decodedAttributes.get("key3"));
+        assertFalse(decodedAttributes.containsKey("key2"));
+
     }
 
 }

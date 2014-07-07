@@ -129,6 +129,10 @@ public class VectorTileEncoder {
         feature.geometry = geometry;
 
         for (Map.Entry<String, ?> e : attributes.entrySet()) {
+        	// skip attribute without value
+        	if (e.getValue() == null) {
+        		continue;
+        	}
             feature.tags.add(layer.key(e.getKey()));
             feature.tags.add(layer.value(e.getValue()));
         }
