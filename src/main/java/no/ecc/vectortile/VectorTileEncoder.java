@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import mapnik.vector.VectorTile;
-import mapnik.vector.VectorTile.tile.GeomType;
+import vector_tile.VectorTile;
+import vector_tile.VectorTile.Tile.GeomType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -152,19 +152,19 @@ public class VectorTileEncoder {
      */
     public byte[] encode() {
 
-        mapnik.vector.VectorTile.tile.Builder tileBuilder = VectorTile.tile.newBuilder();
+        VectorTile.Tile.Builder tileBuilder = VectorTile.Tile.newBuilder();
 
         for (Map.Entry<String, Layer> e : layers.entrySet()) {
             String layerName = e.getKey();
             Layer layer = e.getValue();
 
-            mapnik.vector.VectorTile.tile.layer.Builder layerBuilder = VectorTile.tile.layer.newBuilder();
+            VectorTile.Tile.Layer.Builder layerBuilder = VectorTile.Tile.Layer.newBuilder();
             layerBuilder.setVersion(1);
             layerBuilder.setName(layerName);
 
             layerBuilder.addAllKeys(layer.keys());
 
-            mapnik.vector.VectorTile.tile.value.Builder valueBuilder = mapnik.vector.VectorTile.tile.value.newBuilder();
+            VectorTile.Tile.Value.Builder valueBuilder = VectorTile.Tile.Value.newBuilder();
 
             for (Object value : layer.values()) {
                 if (value instanceof String) {
@@ -187,7 +187,7 @@ public class VectorTileEncoder {
 
                 Geometry geometry = feature.geometry;
 
-                mapnik.vector.VectorTile.tile.feature.Builder featureBuilder = VectorTile.tile.feature.newBuilder();
+                VectorTile.Tile.Feature.Builder featureBuilder = VectorTile.Tile.Feature.newBuilder();
 
                 featureBuilder.addAllTags(feature.tags);
                 featureBuilder.setType(toGeomType(geometry));
@@ -205,21 +205,21 @@ public class VectorTileEncoder {
 
     static GeomType toGeomType(Geometry geometry) {
         if (geometry instanceof com.vividsolutions.jts.geom.Point) {
-            return GeomType.Point;
+            return GeomType.POINT;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.MultiPoint) {
-            return GeomType.Point;
+            return GeomType.POINT;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
-            return GeomType.LineString;
+            return GeomType.LINESTRING;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.MultiLineString) {
-            return GeomType.LineString;
+            return GeomType.LINESTRING;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
-            return GeomType.Polygon;
+            return GeomType.POLYGON;
         }
-        return GeomType.Unknown;
+        return GeomType.UNKNOWN;
     }
 
     static boolean shouldClosePath(Geometry geometry) {

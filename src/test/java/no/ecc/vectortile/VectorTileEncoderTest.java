@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import mapnik.vector.VectorTile.tile.GeomType;
+import vector_tile.VectorTile.Tile.GeomType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -62,7 +62,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(8, 12));
         cs.add(new Coordinate(20, 34));
         Geometry geometry = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
-        assertEquals(GeomType.LineString, VectorTileEncoder.toGeomType(geometry));
+        assertEquals(GeomType.LINESTRING, VectorTileEncoder.toGeomType(geometry));
     }
 
     public void testCommands() {

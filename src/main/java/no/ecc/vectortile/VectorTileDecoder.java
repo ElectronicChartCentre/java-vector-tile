@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import mapnik.vector.VectorTile.tile.GeomType;
+import vector_tile.VectorTile;
+import vector_tile.VectorTile.Tile.GeomType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -43,9 +44,9 @@ public class VectorTileDecoder {
 
         GeometryFactory gf = new GeometryFactory();
 
-        mapnik.vector.VectorTile.tile tile = mapnik.vector.VectorTile.tile.PARSER.parseFrom(data);
+        VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(data);
 
-        for (mapnik.vector.VectorTile.tile.layer layer : tile.getLayersList()) {
+        for (VectorTile.Tile.Layer layer : tile.getLayersList()) {
 
             String layerName = layer.getName();
             int extent = layer.getExtent();
@@ -60,7 +61,7 @@ public class VectorTileDecoder {
             List<String> keys = new ArrayList<String>(layer.getKeysList());
             List<Object> values = new ArrayList<Object>();
 
-            for (mapnik.vector.VectorTile.tile.value value : layer.getValuesList()) {
+            for (VectorTile.Tile.Value value : layer.getValuesList()) {
                 if (value.hasBoolValue()) {
                     values.add(value.getBoolValue());
                 } else if (value.hasDoubleValue()) {
@@ -80,7 +81,7 @@ public class VectorTileDecoder {
                 }
             }
 
-            for (mapnik.vector.VectorTile.tile.feature feature : layer.getFeaturesList()) {
+            for (VectorTile.Tile.Feature feature : layer.getFeaturesList()) {
 
                 int tagsCount = feature.getTagsCount();
                 Map<String, Object> attributes = new HashMap<String, Object>(tagsCount / 2);
@@ -116,7 +117,7 @@ public class VectorTileDecoder {
                         }
 
                         if (command == Command.ClosePath) {
-                            if (feature.getType() != GeomType.Point && !coords.isEmpty()) {
+                            if (feature.getType() != GeomType.POINT && !coords.isEmpty()) {
                                 coords.add(coords.get(0));
                             }
                             length--;
@@ -143,7 +144,7 @@ public class VectorTileDecoder {
                 Geometry geometry = null;
 
                 switch (feature.getType()) {
-                case LineString:
+                case LINESTRING:
                     List<LineString> lineStrings = new ArrayList<LineString>();
                     for (List<Coordinate> cs : coordsList) {
                         lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
@@ -154,7 +155,7 @@ public class VectorTileDecoder {
                         geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
                     }
                     break;
-                case Point:
+                case POINT:
                     List<Coordinate> allCoords = new ArrayList<Coordinate>();
                     for (List<Coordinate> cs : coordsList) {
                         allCoords.addAll(cs);
@@ -165,7 +166,7 @@ public class VectorTileDecoder {
                         geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
                     }
                     break;
-                case Polygon:
+                case POLYGON:
                     List<LinearRing> rings = new ArrayList<LinearRing>();
                     for (List<Coordinate> cs : coordsList) {
                         rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
@@ -176,7 +177,7 @@ public class VectorTileDecoder {
                         geometry = gf.createPolygon(shell, holes);
                     }
                     break;
-                case Unknown:
+                case UNKNOWN:
                     break;
                 default:
                     break;
