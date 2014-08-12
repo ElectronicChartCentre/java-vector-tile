@@ -114,7 +114,7 @@ public class VectorTileDecoder {
                             coords = new ArrayList<Coordinate>();
                             coordsList.add(coords);
                         }
-                        
+
                         if (command == Command.ClosePath) {
                             if (feature.getType() != GeomType.Point && !coords.isEmpty()) {
                                 coords.add(coords.get(0));
@@ -151,8 +151,7 @@ public class VectorTileDecoder {
                     if (lineStrings.size() == 1) {
                         geometry = lineStrings.get(0);
                     } else if (lineStrings.size() > 1) {
-                        geometry = gf.createMultiLineString(lineStrings
-                                .toArray(new LineString[lineStrings.size()]));
+                        geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
                     }
                     break;
                 case Point:
@@ -173,8 +172,7 @@ public class VectorTileDecoder {
                     }
                     if (rings.size() > 0) {
                         LinearRing shell = rings.get(0);
-                        LinearRing[] holes = rings.subList(1, rings.size()).toArray(
-                                new LinearRing[rings.size() - 1]);
+                        LinearRing[] holes = rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]);
                         geometry = gf.createPolygon(shell, holes);
                     }
                     break;

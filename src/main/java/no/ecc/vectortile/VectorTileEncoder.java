@@ -49,19 +49,19 @@ public class VectorTileEncoder {
     /**
      * Create a {@link VectorTileEncoder} with the default extent of 4096.
      */
-	public VectorTileEncoder() {
-		this(4096);
-	}
+    public VectorTileEncoder() {
+        this(4096);
+    }
 
-	/**
-	 * Create a {@link VectorTileEncoder} with the given extent value.
-	 * <p>
-	 * The extent value control how detailed the coordinates are encoded in the
-	 * vector tile. 4096 is a good default, 256 can be used to reduce density.
-	 * 
-	 * @param extent
-	 *            a int with extent value. 4096 is a good value.
-	 */
+    /**
+     * Create a {@link VectorTileEncoder} with the given extent value.
+     * <p>
+     * The extent value control how detailed the coordinates are encoded in the
+     * vector tile. 4096 is a good default, 256 can be used to reduce density.
+     * 
+     * @param extent
+     *            a int with extent value. 4096 is a good value.
+     */
     public VectorTileEncoder(int extent) {
         this.extent = extent;
 
@@ -129,10 +129,10 @@ public class VectorTileEncoder {
         feature.geometry = geometry;
 
         for (Map.Entry<String, ?> e : attributes.entrySet()) {
-        	// skip attribute without value
-        	if (e.getValue() == null) {
-        		continue;
-        	}
+            // skip attribute without value
+            if (e.getValue() == null) {
+                continue;
+            }
             feature.tags.add(layer.key(e.getKey()));
             feature.tags.add(layer.value(e.getValue()));
         }
@@ -140,8 +140,7 @@ public class VectorTileEncoder {
         layer.features.add(feature);
     }
 
-    private void splitAndAddFeatures(String layerName, Map<String, ?> attributes,
-            GeometryCollection geometry) {
+    private void splitAndAddFeatures(String layerName, Map<String, ?> attributes, GeometryCollection geometry) {
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
             Geometry subGeometry = geometry.getGeometryN(i);
             addFeature(layerName, attributes, subGeometry);
@@ -159,15 +158,13 @@ public class VectorTileEncoder {
             String layerName = e.getKey();
             Layer layer = e.getValue();
 
-            mapnik.vector.VectorTile.tile.layer.Builder layerBuilder = VectorTile.tile.layer
-                    .newBuilder();
+            mapnik.vector.VectorTile.tile.layer.Builder layerBuilder = VectorTile.tile.layer.newBuilder();
             layerBuilder.setVersion(1);
             layerBuilder.setName(layerName);
 
             layerBuilder.addAllKeys(layer.keys());
 
-            mapnik.vector.VectorTile.tile.value.Builder valueBuilder = mapnik.vector.VectorTile.tile.value
-                    .newBuilder();
+            mapnik.vector.VectorTile.tile.value.Builder valueBuilder = mapnik.vector.VectorTile.tile.value.newBuilder();
 
             for (Object value : layer.values()) {
                 if (value instanceof String) {
@@ -190,8 +187,7 @@ public class VectorTileEncoder {
 
                 Geometry geometry = feature.geometry;
 
-                mapnik.vector.VectorTile.tile.feature.Builder featureBuilder = VectorTile.tile.feature
-                        .newBuilder();
+                mapnik.vector.VectorTile.tile.feature.Builder featureBuilder = VectorTile.tile.feature.newBuilder();
 
                 featureBuilder.addAllTags(feature.tags);
                 featureBuilder.setType(toGeomType(geometry));

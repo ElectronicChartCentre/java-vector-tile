@@ -73,8 +73,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(8, 12));
         cs.add(new Coordinate(20, 34));
 
-        List<Integer> commands = new VectorTileEncoder(256).commands(
-                cs.toArray(new Coordinate[cs.size()]), true);
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), true);
         assertNotNull(commands);
         // Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
         assertCommand(9, commands, 0);
@@ -99,8 +98,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(8, 12));
         cs.add(new Coordinate(20, 34));
 
-        List<Integer> commands = new VectorTileEncoder(256).commands(
-                cs.toArray(new Coordinate[cs.size()]), true);
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), true);
         assertNotNull(commands);
         // Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
         assertCommand(9, commands, 0);
@@ -133,7 +131,7 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(2, VectorTileEncoder.zigZagEncode(1));
         assertEquals(3, VectorTileEncoder.zigZagEncode(-2));
     }
-    
+
     public void testNullAttributeValue() throws IOException {
         VectorTileEncoder vtm = new VectorTileEncoder(256);
         Geometry geometry = gf.createPoint(new Coordinate(3, 6));
@@ -147,7 +145,7 @@ public class VectorTileEncoderTest extends TestCase {
 
         byte[] encoded = vtm.encode();
         assertNotSame(0, encoded.length);
-        
+
         VectorTileDecoder decoder = new VectorTileDecoder();
         decoder.decode(encoded);
         assertEquals(1, decoder.getFeatures("DEPCNT").size());
