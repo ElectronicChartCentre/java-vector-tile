@@ -19,6 +19,7 @@
 package no.ecc.vectortile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,18 +39,28 @@ import com.vividsolutions.jts.geom.LinearRing;
 
 public class VectorTileDecoder {
 
+    private int extent;
     private final Map<String, List<Feature>> featuresByLayerName = new HashMap<String, List<Feature>>();
 
     public void decode(byte[] data) throws IOException {
+        VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(data);
+        decode(tile);
+    }
+    
+    public void decode(InputStream in) throws IOException {
+        VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(in);
+        decode(tile);
+    }
+    
+    private void decode(VectorTile.Tile tile) throws IOException {
 
         GeometryFactory gf = new GeometryFactory();
 
-        VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(data);
 
         for (VectorTile.Tile.Layer layer : tile.getLayersList()) {
 
             String layerName = layer.getName();
-            int extent = layer.getExtent();
+            extent = layer.getExtent();
             double scale = extent / 256.0;
 
             List<Feature> features = featuresByLayerName.get(layerName);
@@ -205,6 +216,10 @@ public class VectorTileDecoder {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(features);
+    }
+    
+    int getExtent() {
+        return extent;
     }
 
     static int zigZagDecode(int n) {

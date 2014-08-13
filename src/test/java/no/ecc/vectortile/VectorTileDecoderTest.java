@@ -19,16 +19,21 @@
 package no.ecc.vectortile;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import no.ecc.vectortile.VectorTileDecoder.Feature;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Point;
 
 public class VectorTileDecoderTest extends TestCase {
 
@@ -199,6 +204,47 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(geometry.toText(), d.getFeatures(layerName).get(0).getGeometry().toText());
         assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
 
+    }
+
+    public void testExternal() throws IOException {
+        // from
+        // https://github.com/mapbox/vector-tile-js/tree/master/test/fixtures
+        InputStream is = getClass().getResourceAsStream("/14-8801-5371.vector.pbf");
+        assertNotNull(is);
+        VectorTileDecoder d = new VectorTileDecoder();
+        d.decode(is);
+        assertEquals(4096, d.getExtent());
+
+        d.getLayerNames().equals(
+                new HashSet<String>(Arrays.asList("landuse", "waterway", "water", "barrier_line", "building",
+                        "landuse_overlay", "tunnel", "road", "bridge", "place_label", "water_label", "poi_label",
+                        "road_label", "waterway_label")));
+
+        Feature park = d.getFeatures("poi_label").get(11);
+        assertEquals("Mauerpark", park.getAttributes().get("name"));
+        assertEquals("Park", park.getAttributes().get("type"));
+
+        Geometry parkGeometry = park.getGeometry();
+        assertTrue(parkGeometry instanceof Point);
+        assertEquals(1, parkGeometry.getCoordinates().length);
+
+        assertEquals(new Coordinate(3898.0, 1731.0), d.getExtent(), parkGeometry.getCoordinates()[0]);
+
+        Geometry building = d.getFeatures("building").get(0).getGeometry();
+        assertNotNull(building);
+
+        assertEquals(5, building.getCoordinates().length);
+        assertEquals(new Coordinate(2039, -32), d.getExtent(), building.getCoordinates()[0]);
+        assertEquals(new Coordinate(2035, -31), d.getExtent(), building.getCoordinates()[1]);
+        assertEquals(new Coordinate(2032, -31), d.getExtent(), building.getCoordinates()[2]);
+        assertEquals(new Coordinate(2032, -32), d.getExtent(), building.getCoordinates()[3]);
+        assertEquals(new Coordinate(2039, -32), d.getExtent(), building.getCoordinates()[4]);
+    }
+
+    private void assertEquals(Coordinate expected, int extent, Coordinate actual) {
+        double scale = extent / 256.0;
+        assertEquals(expected.x / scale, actual.x);
+        assertEquals(expected.y / scale, actual.y);
     }
 
     private void assertEquals(Map<String, Object> expected, Map<String, Object> real) {
