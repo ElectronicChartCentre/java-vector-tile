@@ -155,5 +155,34 @@ public class VectorTileEncoderTest extends TestCase {
         assertFalse(decodedAttributes.containsKey("key2"));
 
     }
+    
+    public void testAttributeTypes() throws IOException {
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+        Geometry geometry = gf.createPoint(new Coordinate(3, 6));
+
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        attributes.put("key1", "value1");
+        attributes.put("key2", Integer.valueOf(123));
+        attributes.put("key3", Float.valueOf(234.1f));
+        attributes.put("key4", Double.valueOf(567.123d));
+        attributes.put("key5", Long.valueOf(-123));
+        attributes.put("key6", "value6");
+
+        vtm.addFeature("DEPCNT", attributes, geometry);
+
+        byte[] encoded = vtm.encode();
+        assertNotSame(0, encoded.length);
+
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        decoder.decode(encoded);
+        assertEquals(1, decoder.getFeatures("DEPCNT").size());
+        Map<String, Object> decodedAttributes = decoder.getFeatures("DEPCNT").get(0).getAttributes();
+        assertEquals("value1", decodedAttributes.get("key1"));
+        assertEquals(Long.valueOf(123), decodedAttributes.get("key2"));
+        assertEquals(Float.valueOf(234.1f), decodedAttributes.get("key3"));
+        assertEquals(Double.valueOf(567.123d), decodedAttributes.get("key4"));
+        assertEquals(Long.valueOf(-123), decodedAttributes.get("key5"));
+        assertEquals("value6", decodedAttributes.get("key6"));
+    }
 
 }

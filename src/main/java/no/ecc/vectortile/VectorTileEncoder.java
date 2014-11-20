@@ -164,13 +164,14 @@ public class VectorTileEncoder {
 
             layerBuilder.addAllKeys(layer.keys());
 
-            VectorTile.Tile.Value.Builder valueBuilder = VectorTile.Tile.Value.newBuilder();
-
             for (Object value : layer.values()) {
+                VectorTile.Tile.Value.Builder valueBuilder = VectorTile.Tile.Value.newBuilder();
                 if (value instanceof String) {
                     valueBuilder.setStringValue((String) value);
                 } else if (value instanceof Integer) {
-                    valueBuilder.setIntValue(((Integer) value).intValue());
+                    valueBuilder.setSintValue(((Integer) value).intValue());
+                } else if (value instanceof Long) {
+                    valueBuilder.setSintValue(((Long) value).longValue());
                 } else if (value instanceof Float) {
                     valueBuilder.setFloatValue(((Float) value).floatValue());
                 } else if (value instanceof Double) {
