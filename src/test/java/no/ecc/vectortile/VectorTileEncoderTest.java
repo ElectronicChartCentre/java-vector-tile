@@ -54,6 +54,7 @@ public class VectorTileEncoderTest extends TestCase {
 
         byte[] encoded = vtm.encode();
         assertNotSame(0, encoded.length);
+        
     }
 
     public void testToGeomType() {
@@ -184,5 +185,5 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(Long.valueOf(-123), decodedAttributes.get("key5"));
         assertEquals("value6", decodedAttributes.get("key6"));
     }
-
+    
 }

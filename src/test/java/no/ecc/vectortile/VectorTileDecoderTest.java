@@ -177,8 +177,8 @@ public class VectorTileDecoderTest extends TestCase {
         Geometry geometry = gf.createPolygon(shell, new LinearRing[] {});
         assertTrue(geometry.isValid());
 
-        LinearRing hole = gf.createLinearRing(new Coordinate[] { new Coordinate(11, 11), new Coordinate(11, 19),
-                new Coordinate(19, 19), new Coordinate(19, 11), new Coordinate(11, 11) });
+        LinearRing hole = gf.createLinearRing(new Coordinate[] { new Coordinate(11, 11), new Coordinate(19, 11),
+                new Coordinate(19, 19), new Coordinate(11, 19), new Coordinate(11, 11) });
         assertTrue(hole.isClosed());
         assertTrue(hole.isValid());
 
@@ -219,6 +219,8 @@ public class VectorTileDecoderTest extends TestCase {
                 new HashSet<String>(Arrays.asList("landuse", "waterway", "water", "barrier_line", "building",
                         "landuse_overlay", "tunnel", "road", "bridge", "place_label", "water_label", "poi_label",
                         "road_label", "waterway_label")));
+        
+        assertEquals(558, d.getFeatures("poi_label").size());
 
         Feature park = d.getFeatures("poi_label").get(11);
         assertEquals("Mauerpark", park.getAttributes().get("name"));
@@ -239,6 +241,7 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(new Coordinate(2032, -31), d.getExtent(), building.getCoordinates()[2]);
         assertEquals(new Coordinate(2032, -32), d.getExtent(), building.getCoordinates()[3]);
         assertEquals(new Coordinate(2039, -32), d.getExtent(), building.getCoordinates()[4]);
+        
     }
 
     private void assertEquals(Coordinate expected, int extent, Coordinate actual) {

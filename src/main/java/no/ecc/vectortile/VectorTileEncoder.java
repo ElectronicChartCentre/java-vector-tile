@@ -45,12 +45,23 @@ public class VectorTileEncoder {
     private final int extent;
 
     private final Geometry clipGeometry;
+    
+    private final Geometry polygonClipGeometry;
 
     /**
-     * Create a {@link VectorTileEncoder} with the default extent of 4096.
+     * Create a {@link VectorTileEncoder} with the default extent of 4096 and
+     * clip buffer of 8.
      */
     public VectorTileEncoder() {
-        this(4096);
+        this(4096, 8);
+    }
+    
+    /**
+     * Create a {@link VectorTileEncoder} with the given extent and a polygon
+     * clip buffer of 8.
+     */
+    public VectorTileEncoder(int extent) {
+        this(extent, 8);
     }
 
     /**
@@ -58,29 +69,39 @@ public class VectorTileEncoder {
      * <p>
      * The extent value control how detailed the coordinates are encoded in the
      * vector tile. 4096 is a good default, 256 can be used to reduce density.
+     * <p>
+     * The polygon clip buffer value control how large the clipping area is
+     * outside of the tile for polygons. 0 means that the clipping is done at
+     * the tile border. 8 is a good default.
      * 
      * @param extent
      *            a int with extent value. 4096 is a good value.
+     * @param polygonClipBuffer
+     *            a int with clip buffer size for polygons. 8 is a good value.
      */
-    public VectorTileEncoder(int extent) {
+    public VectorTileEncoder(int extent, int polygonClipBuffer) {
         this.extent = extent;
 
-        // 0,0,256,256 for vector clipping
-        Coordinate[] coords = new Coordinate[5];
-        coords[0] = new Coordinate(0, 256);
-        coords[1] = new Coordinate(256, 256);
-        coords[2] = new Coordinate(256, 0);
-        coords[3] = new Coordinate(0, 0);
-        coords[4] = coords[0];
-        clipGeometry = new GeometryFactory().createPolygon(coords);
+        clipGeometry = createTileEnvelope(0);
+        polygonClipGeometry = createTileEnvelope(polygonClipBuffer);
     }
-
+    
+    private static Geometry createTileEnvelope(int buffer) {
+        Coordinate[] coords = new Coordinate[5];
+        coords[0] = new Coordinate(0 - buffer, 256 + buffer);
+        coords[1] = new Coordinate(256 + buffer, 256 + buffer);
+        coords[2] = new Coordinate(256 + buffer, 0);
+        coords[3] = new Coordinate(0 - buffer, 0 - buffer);
+        coords[4] = coords[0];
+        return new GeometryFactory().createPolygon(coords);
+    }
+    
     /**
      * Add a feature with layer name (typically feature type name), some
      * attributes and a Geometry. The Geometry must be in "pixel" space 0,0
      * lower left and 256,256 upper right.
      * <p>
-     * For optimization, non-polygon geometries will be clipped, geometries will
+     * For optimization, geometries will be clipped, geometries will
      * simplified and features with geometries outside of the tile will be
      * skipped.
      * 
@@ -96,22 +117,17 @@ public class VectorTileEncoder {
             return;
         }
 
-        // clip some geometry types
-        if (!(geometry instanceof Polygon)) {
+        // clip geometry. polygons right outside. other geometries at tile border.
+        if (geometry instanceof Polygon) {
+            geometry = polygonClipGeometry.intersection(geometry);
+        } else {
             geometry = clipGeometry.intersection(geometry);
-
-            // if clipping result in MultiPolygon, then split once more
-            if (geometry instanceof MultiPolygon) {
-                splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
-                return;
-            }
         }
 
-        // not clipping polygons, but skip those outside
-        if (geometry instanceof Polygon) {
-            if (!clipGeometry.intersects(geometry)) {
-                return;
-            }
+        // if clipping result in MultiPolygon, then split once more
+        if (geometry instanceof MultiPolygon) {
+            splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
+            return;
         }
 
         // no need to add empty geometry
