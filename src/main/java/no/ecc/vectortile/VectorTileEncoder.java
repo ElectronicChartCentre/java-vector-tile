@@ -32,11 +32,13 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.TopologyException;
 
 public class VectorTileEncoder {
 
@@ -45,7 +47,7 @@ public class VectorTileEncoder {
     private final int extent;
 
     private final Geometry clipGeometry;
-    
+
     private final Geometry polygonClipGeometry;
 
     /**
@@ -55,7 +57,7 @@ public class VectorTileEncoder {
     public VectorTileEncoder() {
         this(4096, 8);
     }
-    
+
     /**
      * Create a {@link VectorTileEncoder} with the given extent and a polygon
      * clip buffer of 8.
@@ -85,7 +87,7 @@ public class VectorTileEncoder {
         clipGeometry = createTileEnvelope(0);
         polygonClipGeometry = createTileEnvelope(polygonClipBuffer);
     }
-    
+
     private static Geometry createTileEnvelope(int buffer) {
         Coordinate[] coords = new Coordinate[5];
         coords[0] = new Coordinate(0 - buffer, 256 + buffer);
@@ -95,15 +97,14 @@ public class VectorTileEncoder {
         coords[4] = coords[0];
         return new GeometryFactory().createPolygon(coords);
     }
-    
+
     /**
      * Add a feature with layer name (typically feature type name), some
      * attributes and a Geometry. The Geometry must be in "pixel" space 0,0
      * lower left and 256,256 upper right.
      * <p>
-     * For optimization, geometries will be clipped, geometries will
-     * simplified and features with geometries outside of the tile will be
-     * skipped.
+     * For optimization, geometries will be clipped, geometries will simplified
+     * and features with geometries outside of the tile will be skipped.
      * 
      * @param layerName
      * @param attributes
@@ -116,12 +117,25 @@ public class VectorTileEncoder {
             splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
             return;
         }
+        
+        // skip small Polygon/LineString.
+        if (geometry instanceof Polygon && geometry.getArea() < 1.0d) {
+            return;
+        }
+        if (geometry instanceof LineString && geometry.getLength() < 1.0d) {
+            return;
+        }
 
-        // clip geometry. polygons right outside. other geometries at tile border.
-        if (geometry instanceof Polygon) {
-            geometry = polygonClipGeometry.intersection(geometry);
-        } else {
-            geometry = clipGeometry.intersection(geometry);
+        // clip geometry. polygons right outside. other geometries at tile
+        // border.
+        try {
+            if (geometry instanceof Polygon) {
+                geometry = polygonClipGeometry.intersection(geometry);
+            } else {
+                geometry = clipGeometry.intersection(geometry);
+            }
+        } catch (TopologyException e) {
+            // ignore topology exceptions. sorry.
         }
 
         // if clipping result in MultiPolygon, then split once more
