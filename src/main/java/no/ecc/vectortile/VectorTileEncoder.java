@@ -39,6 +39,8 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 public class VectorTileEncoder {
 
@@ -92,7 +94,7 @@ public class VectorTileEncoder {
         Coordinate[] coords = new Coordinate[5];
         coords[0] = new Coordinate(0 - buffer, 256 + buffer);
         coords[1] = new Coordinate(256 + buffer, 256 + buffer);
-        coords[2] = new Coordinate(256 + buffer, 0);
+        coords[2] = new Coordinate(256 + buffer, 0 - buffer);
         coords[3] = new Coordinate(0 - buffer, 0 - buffer);
         coords[4] = coords[0];
         return new GeometryFactory().createPolygon(coords);
@@ -130,12 +132,23 @@ public class VectorTileEncoder {
         // border.
         try {
             if (geometry instanceof Polygon) {
-                geometry = polygonClipGeometry.intersection(geometry);
+                Geometry original = geometry;
+                geometry = polygonClipGeometry.intersection(original);
+
+                // some times a intersection is returned as an empty geometry.
+                // going via wkt fixes the problem.
+                if (geometry.isEmpty() && original.intersects(polygonClipGeometry)) {
+                    Geometry originalViaWkt = new WKTReader().read(original.toText());
+                    geometry = polygonClipGeometry.intersection(originalViaWkt);
+                }
+                
             } else {
                 geometry = clipGeometry.intersection(geometry);
             }
         } catch (TopologyException e) {
             // ignore topology exceptions. sorry.
+        } catch (ParseException e1) {
+            // ignore parse exceptions. sorry.
         }
 
         // if clipping result in MultiPolygon, then split once more
