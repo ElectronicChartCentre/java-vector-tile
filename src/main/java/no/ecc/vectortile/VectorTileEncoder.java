@@ -146,9 +146,9 @@ public class VectorTileEncoder {
                 geometry = clipGeometry.intersection(geometry);
             }
         } catch (TopologyException e) {
-            // ignore topology exceptions. sorry.
+            // could not intersect. original geometry will be used instead.
         } catch (ParseException e1) {
-            // ignore parse exceptions. sorry.
+            // could not encode/decode WKT. original geometry will be used instead.
         }
 
         // if clipping result in MultiPolygon, then split once more
