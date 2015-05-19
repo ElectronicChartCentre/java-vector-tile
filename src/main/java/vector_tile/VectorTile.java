@@ -9,10 +9,10 @@ public final class VectorTile {
       com.google.protobuf.ExtensionRegistryLite registry) {
   }
   public interface TileOrBuilder extends 
+      // @@protoc_insertion_point(interface_extends:vector_tile.Tile)
        com.google.protobuf.GeneratedMessageLite.
             ExtendableMessageOrBuilder<Tile> {
 
-    // repeated .vector_tile.Tile.Layer layers = 3;
     /**
      * <code>repeated .vector_tile.Tile.Layer layers = 3;</code>
      */
@@ -32,13 +32,15 @@ public final class VectorTile {
    */
   public static final class Tile extends
       com.google.protobuf.GeneratedMessageLite.ExtendableMessage<
-        Tile> implements TileOrBuilder {
+        Tile> implements
+      // @@protoc_insertion_point(message_implements:vector_tile.Tile)
+      TileOrBuilder {
     // Use Tile.newBuilder() to construct.
     private Tile(com.google.protobuf.GeneratedMessageLite.ExtendableBuilder<vector_tile.VectorTile.Tile, ?> builder) {
       super(builder);
-
+      this.unknownFields = builder.getUnknownFields();
     }
-    private Tile(boolean noInit) {}
+    private Tile(boolean noInit) { this.unknownFields = com.google.protobuf.ByteString.EMPTY;}
 
     private static final Tile defaultInstance;
     public static Tile getDefaultInstance() {
@@ -49,12 +51,18 @@ public final class VectorTile {
       return defaultInstance;
     }
 
+    private final com.google.protobuf.ByteString unknownFields;
     private Tile(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       initFields();
       int mutable_bitField0_ = 0;
+      com.google.protobuf.ByteString.Output unknownFieldsOutput =
+          com.google.protobuf.ByteString.newOutput();
+      com.google.protobuf.CodedOutputStream unknownFieldsCodedOutput =
+          com.google.protobuf.CodedOutputStream.newInstance(
+              unknownFieldsOutput);
       try {
         boolean done = false;
         while (!done) {
@@ -64,7 +72,7 @@ public final class VectorTile {
               done = true;
               break;
             default: {
-              if (!parseUnknownField(input,
+              if (!parseUnknownField(input, unknownFieldsCodedOutput,
                                      extensionRegistry, tag)) {
                 done = true;
               }
@@ -88,6 +96,13 @@ public final class VectorTile {
       } finally {
         if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
           layers_ = java.util.Collections.unmodifiableList(layers_);
+        }
+        try {
+          unknownFieldsCodedOutput.flush();
+        } catch (java.io.IOException e) {
+        // Should not happen
+        } finally {
+          unknownFields = unknownFieldsOutput.toByteString();
         }
         makeExtensionsImmutable();
       }
@@ -182,10 +197,10 @@ public final class VectorTile {
     }
 
     public interface ValueOrBuilder extends 
+        // @@protoc_insertion_point(interface_extends:vector_tile.Tile.Value)
          com.google.protobuf.GeneratedMessageLite.
               ExtendableMessageOrBuilder<Value> {
 
-      // optional string string_value = 1;
       /**
        * <code>optional string string_value = 1;</code>
        *
@@ -212,7 +227,6 @@ public final class VectorTile {
       com.google.protobuf.ByteString
           getStringValueBytes();
 
-      // optional float float_value = 2;
       /**
        * <code>optional float float_value = 2;</code>
        */
@@ -222,7 +236,6 @@ public final class VectorTile {
        */
       float getFloatValue();
 
-      // optional double double_value = 3;
       /**
        * <code>optional double double_value = 3;</code>
        */
@@ -232,7 +245,6 @@ public final class VectorTile {
        */
       double getDoubleValue();
 
-      // optional int64 int_value = 4;
       /**
        * <code>optional int64 int_value = 4;</code>
        */
@@ -242,7 +254,6 @@ public final class VectorTile {
        */
       long getIntValue();
 
-      // optional uint64 uint_value = 5;
       /**
        * <code>optional uint64 uint_value = 5;</code>
        */
@@ -252,7 +263,6 @@ public final class VectorTile {
        */
       long getUintValue();
 
-      // optional sint64 sint_value = 6;
       /**
        * <code>optional sint64 sint_value = 6;</code>
        */
@@ -262,7 +272,6 @@ public final class VectorTile {
        */
       long getSintValue();
 
-      // optional bool bool_value = 7;
       /**
        * <code>optional bool bool_value = 7;</code>
        */
@@ -281,13 +290,15 @@ public final class VectorTile {
      */
     public static final class Value extends
         com.google.protobuf.GeneratedMessageLite.ExtendableMessage<
-          Value> implements ValueOrBuilder {
+          Value> implements
+        // @@protoc_insertion_point(message_implements:vector_tile.Tile.Value)
+        ValueOrBuilder {
       // Use Value.newBuilder() to construct.
       private Value(com.google.protobuf.GeneratedMessageLite.ExtendableBuilder<vector_tile.VectorTile.Tile.Value, ?> builder) {
         super(builder);
-
+        this.unknownFields = builder.getUnknownFields();
       }
-      private Value(boolean noInit) {}
+      private Value(boolean noInit) { this.unknownFields = com.google.protobuf.ByteString.EMPTY;}
 
       private static final Value defaultInstance;
       public static Value getDefaultInstance() {
@@ -298,12 +309,18 @@ public final class VectorTile {
         return defaultInstance;
       }
 
+      private final com.google.protobuf.ByteString unknownFields;
       private Value(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         initFields();
         int mutable_bitField0_ = 0;
+        com.google.protobuf.ByteString.Output unknownFieldsOutput =
+            com.google.protobuf.ByteString.newOutput();
+        com.google.protobuf.CodedOutputStream unknownFieldsCodedOutput =
+            com.google.protobuf.CodedOutputStream.newInstance(
+                unknownFieldsOutput);
         try {
           boolean done = false;
           while (!done) {
@@ -313,15 +330,16 @@ public final class VectorTile {
                 done = true;
                 break;
               default: {
-                if (!parseUnknownField(input,
+                if (!parseUnknownField(input, unknownFieldsCodedOutput,
                                        extensionRegistry, tag)) {
                   done = true;
                 }
                 break;
               }
               case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000001;
-                stringValue_ = input.readBytes();
+                stringValue_ = bs;
                 break;
               }
               case 21: {
@@ -362,6 +380,13 @@ public final class VectorTile {
           throw new com.google.protobuf.InvalidProtocolBufferException(
               e.getMessage()).setUnfinishedMessage(this);
         } finally {
+          try {
+            unknownFieldsCodedOutput.flush();
+          } catch (java.io.IOException e) {
+          // Should not happen
+          } finally {
+            unknownFields = unknownFieldsOutput.toByteString();
+          }
           makeExtensionsImmutable();
         }
       }
@@ -381,7 +406,6 @@ public final class VectorTile {
       }
 
       private int bitField0_;
-      // optional string string_value = 1;
       public static final int STRING_VALUE_FIELD_NUMBER = 1;
       private java.lang.Object stringValue_;
       /**
@@ -436,7 +460,6 @@ public final class VectorTile {
         }
       }
 
-      // optional float float_value = 2;
       public static final int FLOAT_VALUE_FIELD_NUMBER = 2;
       private float floatValue_;
       /**
@@ -452,7 +475,6 @@ public final class VectorTile {
         return floatValue_;
       }
 
-      // optional double double_value = 3;
       public static final int DOUBLE_VALUE_FIELD_NUMBER = 3;
       private double doubleValue_;
       /**
@@ -468,7 +490,6 @@ public final class VectorTile {
         return doubleValue_;
       }
 
-      // optional int64 int_value = 4;
       public static final int INT_VALUE_FIELD_NUMBER = 4;
       private long intValue_;
       /**
@@ -484,7 +505,6 @@ public final class VectorTile {
         return intValue_;
       }
 
-      // optional uint64 uint_value = 5;
       public static final int UINT_VALUE_FIELD_NUMBER = 5;
       private long uintValue_;
       /**
@@ -500,7 +520,6 @@ public final class VectorTile {
         return uintValue_;
       }
 
-      // optional sint64 sint_value = 6;
       public static final int SINT_VALUE_FIELD_NUMBER = 6;
       private long sintValue_;
       /**
@@ -516,7 +535,6 @@ public final class VectorTile {
         return sintValue_;
       }
 
-      // optional bool bool_value = 7;
       public static final int BOOL_VALUE_FIELD_NUMBER = 7;
       private boolean boolValue_;
       /**
@@ -544,7 +562,8 @@ public final class VectorTile {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!extensionsAreInitialized()) {
           memoizedIsInitialized = 0;
@@ -582,6 +601,7 @@ public final class VectorTile {
           output.writeBool(7, boolValue_);
         }
         extensionWriter.writeUntil(536870912, output);
+        output.writeRawBytes(unknownFields);
       }
 
       private int memoizedSerializedSize = -1;
@@ -619,6 +639,7 @@ public final class VectorTile {
             .computeBoolSize(7, boolValue_);
         }
         size += extensionsSerializedSize();
+        size += unknownFields.size();
         memoizedSerializedSize = size;
         return size;
       }
@@ -699,7 +720,9 @@ public final class VectorTile {
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessageLite.ExtendableBuilder<
-            vector_tile.VectorTile.Tile.Value, Builder> implements vector_tile.VectorTile.Tile.ValueOrBuilder {
+            vector_tile.VectorTile.Tile.Value, Builder> implements
+          // @@protoc_insertion_point(builder_implements:vector_tile.Tile.Value)
+          vector_tile.VectorTile.Tile.ValueOrBuilder {
         // Construct using vector_tile.VectorTile.Tile.Value.newBuilder()
         private Builder() {
           maybeForceBuilderInitialization();
@@ -808,6 +831,8 @@ public final class VectorTile {
             setBoolValue(other.getBoolValue());
           }
           this.mergeExtensionFields(other);
+          setUnknownFields(
+              getUnknownFields().concat(other.unknownFields));
           return this;
         }
 
@@ -838,7 +863,6 @@ public final class VectorTile {
         }
         private int bitField0_;
 
-        // optional string string_value = 1;
         private java.lang.Object stringValue_ = "";
         /**
          * <code>optional string string_value = 1;</code>
@@ -860,9 +884,12 @@ public final class VectorTile {
         public java.lang.String getStringValue() {
           java.lang.Object ref = stringValue_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            stringValue_ = s;
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              stringValue_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -936,7 +963,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional float float_value = 2;
         private float floatValue_ ;
         /**
          * <code>optional float float_value = 2;</code>
@@ -969,7 +995,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional double double_value = 3;
         private double doubleValue_ ;
         /**
          * <code>optional double double_value = 3;</code>
@@ -1002,7 +1027,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional int64 int_value = 4;
         private long intValue_ ;
         /**
          * <code>optional int64 int_value = 4;</code>
@@ -1035,7 +1059,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional uint64 uint_value = 5;
         private long uintValue_ ;
         /**
          * <code>optional uint64 uint_value = 5;</code>
@@ -1068,7 +1091,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional sint64 sint_value = 6;
         private long sintValue_ ;
         /**
          * <code>optional sint64 sint_value = 6;</code>
@@ -1101,7 +1123,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional bool bool_value = 7;
         private boolean boolValue_ ;
         /**
          * <code>optional bool bool_value = 7;</code>
@@ -1145,10 +1166,10 @@ public final class VectorTile {
       // @@protoc_insertion_point(class_scope:vector_tile.Tile.Value)
     }
 
-    public interface FeatureOrBuilder
-        extends com.google.protobuf.MessageLiteOrBuilder {
+    public interface FeatureOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:vector_tile.Tile.Feature)
+        com.google.protobuf.MessageLiteOrBuilder {
 
-      // optional uint64 id = 1 [default = 0];
       /**
        * <code>optional uint64 id = 1 [default = 0];</code>
        */
@@ -1158,7 +1179,6 @@ public final class VectorTile {
        */
       long getId();
 
-      // repeated uint32 tags = 2 [packed = true];
       /**
        * <code>repeated uint32 tags = 2 [packed = true];</code>
        *
@@ -1202,7 +1222,6 @@ public final class VectorTile {
        */
       int getTags(int index);
 
-      // optional .vector_tile.Tile.GeomType type = 3 [default = UNKNOWN];
       /**
        * <code>optional .vector_tile.Tile.GeomType type = 3 [default = UNKNOWN];</code>
        *
@@ -1220,7 +1239,6 @@ public final class VectorTile {
        */
       vector_tile.VectorTile.Tile.GeomType getType();
 
-      // repeated uint32 geometry = 4 [packed = true];
       /**
        * <code>repeated uint32 geometry = 4 [packed = true];</code>
        *
@@ -1233,14 +1251,11 @@ public final class VectorTile {
        * - MoveTo:    1   (2 parameters follow)
        * - LineTo:    2   (2 parameters follow)
        * - ClosePath: 7   (no parameters follow)
-       *
        * Commands are encoded as uint32 varints. Vertex parameters
        * are encoded as deltas to the previous position and, as they
        * may be negative, are further "zigzag" encoded as unsigned
        * 32-bit ints:
-       *
        *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-       *
        * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
        * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
        *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -1249,7 +1264,6 @@ public final class VectorTile {
        *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
        *               | ==== relative MoveTo(+3, +6)
        *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-       *
        * The original position is (0,0).
        * </pre>
        */
@@ -1266,14 +1280,11 @@ public final class VectorTile {
        * - MoveTo:    1   (2 parameters follow)
        * - LineTo:    2   (2 parameters follow)
        * - ClosePath: 7   (no parameters follow)
-       *
        * Commands are encoded as uint32 varints. Vertex parameters
        * are encoded as deltas to the previous position and, as they
        * may be negative, are further "zigzag" encoded as unsigned
        * 32-bit ints:
-       *
        *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-       *
        * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
        * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
        *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -1282,7 +1293,6 @@ public final class VectorTile {
        *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
        *               | ==== relative MoveTo(+3, +6)
        *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-       *
        * The original position is (0,0).
        * </pre>
        */
@@ -1299,14 +1309,11 @@ public final class VectorTile {
        * - MoveTo:    1   (2 parameters follow)
        * - LineTo:    2   (2 parameters follow)
        * - ClosePath: 7   (no parameters follow)
-       *
        * Commands are encoded as uint32 varints. Vertex parameters
        * are encoded as deltas to the previous position and, as they
        * may be negative, are further "zigzag" encoded as unsigned
        * 32-bit ints:
-       *
        *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-       *
        * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
        * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
        *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -1315,7 +1322,6 @@ public final class VectorTile {
        *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
        *               | ==== relative MoveTo(+3, +6)
        *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-       *
        * The original position is (0,0).
        * </pre>
        */
@@ -1325,14 +1331,15 @@ public final class VectorTile {
      * Protobuf type {@code vector_tile.Tile.Feature}
      */
     public static final class Feature extends
-        com.google.protobuf.GeneratedMessageLite
-        implements FeatureOrBuilder {
+        com.google.protobuf.GeneratedMessageLite implements
+        // @@protoc_insertion_point(message_implements:vector_tile.Tile.Feature)
+        FeatureOrBuilder {
       // Use Feature.newBuilder() to construct.
       private Feature(com.google.protobuf.GeneratedMessageLite.Builder builder) {
         super(builder);
-
+        this.unknownFields = builder.getUnknownFields();
       }
-      private Feature(boolean noInit) {}
+      private Feature(boolean noInit) { this.unknownFields = com.google.protobuf.ByteString.EMPTY;}
 
       private static final Feature defaultInstance;
       public static Feature getDefaultInstance() {
@@ -1343,12 +1350,18 @@ public final class VectorTile {
         return defaultInstance;
       }
 
+      private final com.google.protobuf.ByteString unknownFields;
       private Feature(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         initFields();
         int mutable_bitField0_ = 0;
+        com.google.protobuf.ByteString.Output unknownFieldsOutput =
+            com.google.protobuf.ByteString.newOutput();
+        com.google.protobuf.CodedOutputStream unknownFieldsCodedOutput =
+            com.google.protobuf.CodedOutputStream.newInstance(
+                unknownFieldsOutput);
         try {
           boolean done = false;
           while (!done) {
@@ -1358,7 +1371,7 @@ public final class VectorTile {
                 done = true;
                 break;
               default: {
-                if (!parseUnknownField(input,
+                if (!parseUnknownField(input, unknownFieldsCodedOutput,
                                        extensionRegistry, tag)) {
                   done = true;
                 }
@@ -1393,7 +1406,10 @@ public final class VectorTile {
               case 24: {
                 int rawValue = input.readEnum();
                 vector_tile.VectorTile.Tile.GeomType value = vector_tile.VectorTile.Tile.GeomType.valueOf(rawValue);
-                if (value != null) {
+                if (value == null) {
+                  unknownFieldsCodedOutput.writeRawVarint32(tag);
+                  unknownFieldsCodedOutput.writeRawVarint32(rawValue);
+                } else {
                   bitField0_ |= 0x00000002;
                   type_ = value;
                 }
@@ -1434,6 +1450,13 @@ public final class VectorTile {
           if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
             geometry_ = java.util.Collections.unmodifiableList(geometry_);
           }
+          try {
+            unknownFieldsCodedOutput.flush();
+          } catch (java.io.IOException e) {
+          // Should not happen
+          } finally {
+            unknownFields = unknownFieldsOutput.toByteString();
+          }
           makeExtensionsImmutable();
         }
       }
@@ -1453,7 +1476,6 @@ public final class VectorTile {
       }
 
       private int bitField0_;
-      // optional uint64 id = 1 [default = 0];
       public static final int ID_FIELD_NUMBER = 1;
       private long id_;
       /**
@@ -1469,7 +1491,6 @@ public final class VectorTile {
         return id_;
       }
 
-      // repeated uint32 tags = 2 [packed = true];
       public static final int TAGS_FIELD_NUMBER = 2;
       private java.util.List<java.lang.Integer> tags_;
       /**
@@ -1523,7 +1544,6 @@ public final class VectorTile {
       }
       private int tagsMemoizedSerializedSize = -1;
 
-      // optional .vector_tile.Tile.GeomType type = 3 [default = UNKNOWN];
       public static final int TYPE_FIELD_NUMBER = 3;
       private vector_tile.VectorTile.Tile.GeomType type_;
       /**
@@ -1547,7 +1567,6 @@ public final class VectorTile {
         return type_;
       }
 
-      // repeated uint32 geometry = 4 [packed = true];
       public static final int GEOMETRY_FIELD_NUMBER = 4;
       private java.util.List<java.lang.Integer> geometry_;
       /**
@@ -1562,14 +1581,11 @@ public final class VectorTile {
        * - MoveTo:    1   (2 parameters follow)
        * - LineTo:    2   (2 parameters follow)
        * - ClosePath: 7   (no parameters follow)
-       *
        * Commands are encoded as uint32 varints. Vertex parameters
        * are encoded as deltas to the previous position and, as they
        * may be negative, are further "zigzag" encoded as unsigned
        * 32-bit ints:
-       *
        *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-       *
        * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
        * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
        *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -1578,7 +1594,6 @@ public final class VectorTile {
        *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
        *               | ==== relative MoveTo(+3, +6)
        *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-       *
        * The original position is (0,0).
        * </pre>
        */
@@ -1598,14 +1613,11 @@ public final class VectorTile {
        * - MoveTo:    1   (2 parameters follow)
        * - LineTo:    2   (2 parameters follow)
        * - ClosePath: 7   (no parameters follow)
-       *
        * Commands are encoded as uint32 varints. Vertex parameters
        * are encoded as deltas to the previous position and, as they
        * may be negative, are further "zigzag" encoded as unsigned
        * 32-bit ints:
-       *
        *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-       *
        * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
        * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
        *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -1614,7 +1626,6 @@ public final class VectorTile {
        *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
        *               | ==== relative MoveTo(+3, +6)
        *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-       *
        * The original position is (0,0).
        * </pre>
        */
@@ -1633,14 +1644,11 @@ public final class VectorTile {
        * - MoveTo:    1   (2 parameters follow)
        * - LineTo:    2   (2 parameters follow)
        * - ClosePath: 7   (no parameters follow)
-       *
        * Commands are encoded as uint32 varints. Vertex parameters
        * are encoded as deltas to the previous position and, as they
        * may be negative, are further "zigzag" encoded as unsigned
        * 32-bit ints:
-       *
        *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-       *
        * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
        * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
        *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -1649,7 +1657,6 @@ public final class VectorTile {
        *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
        *               | ==== relative MoveTo(+3, +6)
        *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-       *
        * The original position is (0,0).
        * </pre>
        */
@@ -1667,7 +1674,8 @@ public final class VectorTile {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         memoizedIsInitialized = 1;
         return true;
@@ -1696,6 +1704,7 @@ public final class VectorTile {
         for (int i = 0; i < geometry_.size(); i++) {
           output.writeUInt32NoTag(geometry_.get(i));
         }
+        output.writeRawBytes(unknownFields);
       }
 
       private int memoizedSerializedSize = -1;
@@ -1740,6 +1749,7 @@ public final class VectorTile {
           }
           geometryMemoizedSerializedSize = dataSize;
         }
+        size += unknownFields.size();
         memoizedSerializedSize = size;
         return size;
       }
@@ -1817,7 +1827,9 @@ public final class VectorTile {
       public static final class Builder extends
           com.google.protobuf.GeneratedMessageLite.Builder<
             vector_tile.VectorTile.Tile.Feature, Builder>
-          implements vector_tile.VectorTile.Tile.FeatureOrBuilder {
+          implements
+          // @@protoc_insertion_point(builder_implements:vector_tile.Tile.Feature)
+          vector_tile.VectorTile.Tile.FeatureOrBuilder {
         // Construct using vector_tile.VectorTile.Tile.Feature.newBuilder()
         private Builder() {
           maybeForceBuilderInitialization();
@@ -1912,6 +1924,8 @@ public final class VectorTile {
             }
             
           }
+          setUnknownFields(
+              getUnknownFields().concat(other.unknownFields));
           return this;
         }
 
@@ -1938,7 +1952,6 @@ public final class VectorTile {
         }
         private int bitField0_;
 
-        // optional uint64 id = 1 [default = 0];
         private long id_ ;
         /**
          * <code>optional uint64 id = 1 [default = 0];</code>
@@ -1971,7 +1984,6 @@ public final class VectorTile {
           return this;
         }
 
-        // repeated uint32 tags = 2 [packed = true];
         private java.util.List<java.lang.Integer> tags_ = java.util.Collections.emptyList();
         private void ensureTagsIsMutable() {
           if (!((bitField0_ & 0x00000002) == 0x00000002)) {
@@ -2083,7 +2095,8 @@ public final class VectorTile {
         public Builder addAllTags(
             java.lang.Iterable<? extends java.lang.Integer> values) {
           ensureTagsIsMutable();
-          super.addAll(values, tags_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, tags_);
           
           return this;
         }
@@ -2107,7 +2120,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional .vector_tile.Tile.GeomType type = 3 [default = UNKNOWN];
         private vector_tile.VectorTile.Tile.GeomType type_ = vector_tile.VectorTile.Tile.GeomType.UNKNOWN;
         /**
          * <code>optional .vector_tile.Tile.GeomType type = 3 [default = UNKNOWN];</code>
@@ -2159,7 +2171,6 @@ public final class VectorTile {
           return this;
         }
 
-        // repeated uint32 geometry = 4 [packed = true];
         private java.util.List<java.lang.Integer> geometry_ = java.util.Collections.emptyList();
         private void ensureGeometryIsMutable() {
           if (!((bitField0_ & 0x00000008) == 0x00000008)) {
@@ -2179,14 +2190,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2195,7 +2203,6 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
@@ -2215,14 +2222,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2231,7 +2235,6 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
@@ -2250,14 +2253,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2266,7 +2266,6 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
@@ -2285,14 +2284,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2301,7 +2297,6 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
@@ -2324,14 +2319,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2340,7 +2332,6 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
@@ -2362,14 +2353,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2378,14 +2366,14 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
         public Builder addAllGeometry(
             java.lang.Iterable<? extends java.lang.Integer> values) {
           ensureGeometryIsMutable();
-          super.addAll(values, geometry_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, geometry_);
           
           return this;
         }
@@ -2401,14 +2389,11 @@ public final class VectorTile {
          * - MoveTo:    1   (2 parameters follow)
          * - LineTo:    2   (2 parameters follow)
          * - ClosePath: 7   (no parameters follow)
-         *
          * Commands are encoded as uint32 varints. Vertex parameters
          * are encoded as deltas to the previous position and, as they
          * may be negative, are further "zigzag" encoded as unsigned
          * 32-bit ints:
-         *
          *   n = (n &lt;&lt; 1) ^ (n &gt;&gt; 31)
-         *
          * Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
          * Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
          *               |       |              `&gt; [00001 111] command type 7 (ClosePath), length 1
@@ -2417,7 +2402,6 @@ public final class VectorTile {
          *               |       `&gt; [00010 010] = command type 2 (LineTo), length 2
          *               | ==== relative MoveTo(+3, +6)
          *               `&gt; [00001 001] = command type 1 (MoveTo), length 1
-         *
          * The original position is (0,0).
          * </pre>
          */
@@ -2440,10 +2424,10 @@ public final class VectorTile {
     }
 
     public interface LayerOrBuilder extends 
+        // @@protoc_insertion_point(interface_extends:vector_tile.Tile.Layer)
          com.google.protobuf.GeneratedMessageLite.
               ExtendableMessageOrBuilder<Layer> {
 
-      // required uint32 version = 15 [default = 1];
       /**
        * <code>required uint32 version = 15 [default = 1];</code>
        *
@@ -2467,7 +2451,6 @@ public final class VectorTile {
        */
       int getVersion();
 
-      // required string name = 1;
       /**
        * <code>required string name = 1;</code>
        */
@@ -2482,7 +2465,6 @@ public final class VectorTile {
       com.google.protobuf.ByteString
           getNameBytes();
 
-      // repeated .vector_tile.Tile.Feature features = 2;
       /**
        * <code>repeated .vector_tile.Tile.Feature features = 2;</code>
        *
@@ -2509,7 +2491,6 @@ public final class VectorTile {
        */
       int getFeaturesCount();
 
-      // repeated string keys = 3;
       /**
        * <code>repeated string keys = 3;</code>
        *
@@ -2517,8 +2498,8 @@ public final class VectorTile {
        * Dictionary encoding for keys
        * </pre>
        */
-      java.util.List<java.lang.String>
-      getKeysList();
+      com.google.protobuf.ProtocolStringList
+          getKeysList();
       /**
        * <code>repeated string keys = 3;</code>
        *
@@ -2545,7 +2526,6 @@ public final class VectorTile {
       com.google.protobuf.ByteString
           getKeysBytes(int index);
 
-      // repeated .vector_tile.Tile.Value values = 4;
       /**
        * <code>repeated .vector_tile.Tile.Value values = 4;</code>
        *
@@ -2572,7 +2552,6 @@ public final class VectorTile {
        */
       int getValuesCount();
 
-      // optional uint32 extent = 5 [default = 4096];
       /**
        * <code>optional uint32 extent = 5 [default = 4096];</code>
        *
@@ -2595,13 +2574,15 @@ public final class VectorTile {
      */
     public static final class Layer extends
         com.google.protobuf.GeneratedMessageLite.ExtendableMessage<
-          Layer> implements LayerOrBuilder {
+          Layer> implements
+        // @@protoc_insertion_point(message_implements:vector_tile.Tile.Layer)
+        LayerOrBuilder {
       // Use Layer.newBuilder() to construct.
       private Layer(com.google.protobuf.GeneratedMessageLite.ExtendableBuilder<vector_tile.VectorTile.Tile.Layer, ?> builder) {
         super(builder);
-
+        this.unknownFields = builder.getUnknownFields();
       }
-      private Layer(boolean noInit) {}
+      private Layer(boolean noInit) { this.unknownFields = com.google.protobuf.ByteString.EMPTY;}
 
       private static final Layer defaultInstance;
       public static Layer getDefaultInstance() {
@@ -2612,12 +2593,18 @@ public final class VectorTile {
         return defaultInstance;
       }
 
+      private final com.google.protobuf.ByteString unknownFields;
       private Layer(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
         initFields();
         int mutable_bitField0_ = 0;
+        com.google.protobuf.ByteString.Output unknownFieldsOutput =
+            com.google.protobuf.ByteString.newOutput();
+        com.google.protobuf.CodedOutputStream unknownFieldsCodedOutput =
+            com.google.protobuf.CodedOutputStream.newInstance(
+                unknownFieldsOutput);
         try {
           boolean done = false;
           while (!done) {
@@ -2627,15 +2614,16 @@ public final class VectorTile {
                 done = true;
                 break;
               default: {
-                if (!parseUnknownField(input,
+                if (!parseUnknownField(input, unknownFieldsCodedOutput,
                                        extensionRegistry, tag)) {
                   done = true;
                 }
                 break;
               }
               case 10: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000002;
-                name_ = input.readBytes();
+                name_ = bs;
                 break;
               }
               case 18: {
@@ -2647,11 +2635,12 @@ public final class VectorTile {
                 break;
               }
               case 26: {
+                com.google.protobuf.ByteString bs = input.readBytes();
                 if (!((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
                   keys_ = new com.google.protobuf.LazyStringArrayList();
                   mutable_bitField0_ |= 0x00000008;
                 }
-                keys_.add(input.readBytes());
+                keys_.add(bs);
                 break;
               }
               case 34: {
@@ -2684,10 +2673,17 @@ public final class VectorTile {
             features_ = java.util.Collections.unmodifiableList(features_);
           }
           if (((mutable_bitField0_ & 0x00000008) == 0x00000008)) {
-            keys_ = new com.google.protobuf.UnmodifiableLazyStringList(keys_);
+            keys_ = keys_.getUnmodifiableView();
           }
           if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
             values_ = java.util.Collections.unmodifiableList(values_);
+          }
+          try {
+            unknownFieldsCodedOutput.flush();
+          } catch (java.io.IOException e) {
+          // Should not happen
+          } finally {
+            unknownFields = unknownFieldsOutput.toByteString();
           }
           makeExtensionsImmutable();
         }
@@ -2708,7 +2704,6 @@ public final class VectorTile {
       }
 
       private int bitField0_;
-      // required uint32 version = 15 [default = 1];
       public static final int VERSION_FIELD_NUMBER = 15;
       private int version_;
       /**
@@ -2738,7 +2733,6 @@ public final class VectorTile {
         return version_;
       }
 
-      // required string name = 1;
       public static final int NAME_FIELD_NUMBER = 1;
       private java.lang.Object name_;
       /**
@@ -2781,7 +2775,6 @@ public final class VectorTile {
         }
       }
 
-      // repeated .vector_tile.Tile.Feature features = 2;
       public static final int FEATURES_FIELD_NUMBER = 2;
       private java.util.List<vector_tile.VectorTile.Tile.Feature> features_;
       /**
@@ -2837,7 +2830,6 @@ public final class VectorTile {
         return features_.get(index);
       }
 
-      // repeated string keys = 3;
       public static final int KEYS_FIELD_NUMBER = 3;
       private com.google.protobuf.LazyStringList keys_;
       /**
@@ -2847,7 +2839,7 @@ public final class VectorTile {
        * Dictionary encoding for keys
        * </pre>
        */
-      public java.util.List<java.lang.String>
+      public com.google.protobuf.ProtocolStringList
           getKeysList() {
         return keys_;
       }
@@ -2883,7 +2875,6 @@ public final class VectorTile {
         return keys_.getByteString(index);
       }
 
-      // repeated .vector_tile.Tile.Value values = 4;
       public static final int VALUES_FIELD_NUMBER = 4;
       private java.util.List<vector_tile.VectorTile.Tile.Value> values_;
       /**
@@ -2939,7 +2930,6 @@ public final class VectorTile {
         return values_.get(index);
       }
 
-      // optional uint32 extent = 5 [default = 4096];
       public static final int EXTENT_FIELD_NUMBER = 5;
       private int extent_;
       /**
@@ -2974,7 +2964,8 @@ public final class VectorTile {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasVersion()) {
           memoizedIsInitialized = 0;
@@ -3023,6 +3014,7 @@ public final class VectorTile {
           output.writeUInt32(15, version_);
         }
         extensionWriter.writeUntil(536870912, output);
+        output.writeRawBytes(unknownFields);
       }
 
       private int memoizedSerializedSize = -1;
@@ -3061,6 +3053,7 @@ public final class VectorTile {
             .computeUInt32Size(15, version_);
         }
         size += extensionsSerializedSize();
+        size += unknownFields.size();
         memoizedSerializedSize = size;
         return size;
       }
@@ -3137,7 +3130,9 @@ public final class VectorTile {
        */
       public static final class Builder extends
           com.google.protobuf.GeneratedMessageLite.ExtendableBuilder<
-            vector_tile.VectorTile.Tile.Layer, Builder> implements vector_tile.VectorTile.Tile.LayerOrBuilder {
+            vector_tile.VectorTile.Tile.Layer, Builder> implements
+          // @@protoc_insertion_point(builder_implements:vector_tile.Tile.Layer)
+          vector_tile.VectorTile.Tile.LayerOrBuilder {
         // Construct using vector_tile.VectorTile.Tile.Layer.newBuilder()
         private Builder() {
           maybeForceBuilderInitialization();
@@ -3200,8 +3195,7 @@ public final class VectorTile {
           }
           result.features_ = features_;
           if (((bitField0_ & 0x00000008) == 0x00000008)) {
-            keys_ = new com.google.protobuf.UnmodifiableLazyStringList(
-                keys_);
+            keys_ = keys_.getUnmodifiableView();
             bitField0_ = (bitField0_ & ~0x00000008);
           }
           result.keys_ = keys_;
@@ -3262,6 +3256,8 @@ public final class VectorTile {
             setExtent(other.getExtent());
           }
           this.mergeExtensionFields(other);
+          setUnknownFields(
+              getUnknownFields().concat(other.unknownFields));
           return this;
         }
 
@@ -3306,7 +3302,6 @@ public final class VectorTile {
         }
         private int bitField0_;
 
-        // required uint32 version = 15 [default = 1];
         private int version_ = 1;
         /**
          * <code>required uint32 version = 15 [default = 1];</code>
@@ -3367,7 +3362,6 @@ public final class VectorTile {
           return this;
         }
 
-        // required string name = 1;
         private java.lang.Object name_ = "";
         /**
          * <code>required string name = 1;</code>
@@ -3381,9 +3375,12 @@ public final class VectorTile {
         public java.lang.String getName() {
           java.lang.Object ref = name_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((com.google.protobuf.ByteString) ref)
-                .toStringUtf8();
-            name_ = s;
+            com.google.protobuf.ByteString bs =
+                (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              name_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -3441,7 +3438,6 @@ public final class VectorTile {
           return this;
         }
 
-        // repeated .vector_tile.Tile.Feature features = 2;
         private java.util.List<vector_tile.VectorTile.Tile.Feature> features_ =
           java.util.Collections.emptyList();
         private void ensureFeaturesIsMutable() {
@@ -3583,7 +3579,8 @@ public final class VectorTile {
         public Builder addAllFeatures(
             java.lang.Iterable<? extends vector_tile.VectorTile.Tile.Feature> values) {
           ensureFeaturesIsMutable();
-          super.addAll(values, features_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, features_);
 
           return this;
         }
@@ -3614,7 +3611,6 @@ public final class VectorTile {
           return this;
         }
 
-        // repeated string keys = 3;
         private com.google.protobuf.LazyStringList keys_ = com.google.protobuf.LazyStringArrayList.EMPTY;
         private void ensureKeysIsMutable() {
           if (!((bitField0_ & 0x00000008) == 0x00000008)) {
@@ -3629,9 +3625,9 @@ public final class VectorTile {
          * Dictionary encoding for keys
          * </pre>
          */
-        public java.util.List<java.lang.String>
+        public com.google.protobuf.ProtocolStringList
             getKeysList() {
-          return java.util.Collections.unmodifiableList(keys_);
+          return keys_.getUnmodifiableView();
         }
         /**
          * <code>repeated string keys = 3;</code>
@@ -3708,7 +3704,8 @@ public final class VectorTile {
         public Builder addAllKeys(
             java.lang.Iterable<java.lang.String> values) {
           ensureKeysIsMutable();
-          super.addAll(values, keys_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, keys_);
           
           return this;
         }
@@ -3743,7 +3740,6 @@ public final class VectorTile {
           return this;
         }
 
-        // repeated .vector_tile.Tile.Value values = 4;
         private java.util.List<vector_tile.VectorTile.Tile.Value> values_ =
           java.util.Collections.emptyList();
         private void ensureValuesIsMutable() {
@@ -3885,7 +3881,8 @@ public final class VectorTile {
         public Builder addAllValues(
             java.lang.Iterable<? extends vector_tile.VectorTile.Tile.Value> values) {
           ensureValuesIsMutable();
-          super.addAll(values, values_);
+          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+              values, values_);
 
           return this;
         }
@@ -3916,7 +3913,6 @@ public final class VectorTile {
           return this;
         }
 
-        // optional uint32 extent = 5 [default = 4096];
         private int extent_ = 4096;
         /**
          * <code>optional uint32 extent = 5 [default = 4096];</code>
@@ -3976,7 +3972,6 @@ public final class VectorTile {
       // @@protoc_insertion_point(class_scope:vector_tile.Tile.Layer)
     }
 
-    // repeated .vector_tile.Tile.Layer layers = 3;
     public static final int LAYERS_FIELD_NUMBER = 3;
     private java.util.List<vector_tile.VectorTile.Tile.Layer> layers_;
     /**
@@ -4018,7 +4013,8 @@ public final class VectorTile {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       for (int i = 0; i < getLayersCount(); i++) {
         if (!getLayers(i).isInitialized()) {
@@ -4044,6 +4040,7 @@ public final class VectorTile {
         output.writeMessage(3, layers_.get(i));
       }
       extensionWriter.writeUntil(8192, output);
+      output.writeRawBytes(unknownFields);
     }
 
     private int memoizedSerializedSize = -1;
@@ -4057,6 +4054,7 @@ public final class VectorTile {
           .computeMessageSize(3, layers_.get(i));
       }
       size += extensionsSerializedSize();
+      size += unknownFields.size();
       memoizedSerializedSize = size;
       return size;
     }
@@ -4133,7 +4131,9 @@ public final class VectorTile {
      */
     public static final class Builder extends
         com.google.protobuf.GeneratedMessageLite.ExtendableBuilder<
-          vector_tile.VectorTile.Tile, Builder> implements vector_tile.VectorTile.TileOrBuilder {
+          vector_tile.VectorTile.Tile, Builder> implements
+        // @@protoc_insertion_point(builder_implements:vector_tile.Tile)
+        vector_tile.VectorTile.TileOrBuilder {
       // Construct using vector_tile.VectorTile.Tile.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
@@ -4192,6 +4192,8 @@ public final class VectorTile {
           
         }
         this.mergeExtensionFields(other);
+        setUnknownFields(
+            getUnknownFields().concat(other.unknownFields));
         return this;
       }
 
@@ -4228,7 +4230,6 @@ public final class VectorTile {
       }
       private int bitField0_;
 
-      // repeated .vector_tile.Tile.Layer layers = 3;
       private java.util.List<vector_tile.VectorTile.Tile.Layer> layers_ =
         java.util.Collections.emptyList();
       private void ensureLayersIsMutable() {
@@ -4330,7 +4331,8 @@ public final class VectorTile {
       public Builder addAllLayers(
           java.lang.Iterable<? extends vector_tile.VectorTile.Tile.Layer> values) {
         ensureLayersIsMutable();
-        super.addAll(values, layers_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, layers_);
 
         return this;
       }
