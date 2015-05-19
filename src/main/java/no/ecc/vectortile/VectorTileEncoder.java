@@ -370,10 +370,10 @@ public class VectorTileEncoder {
         // update LineTo length
         if (lineToIndex > 0) {
             if (lineToLength == 0) {
-                // remove length
+                // remove empty LineTo
                 r.remove(lineToIndex);
             } else {
-                // update with new lenth
+                // update LineTo with new length
                 r.set(lineToIndex, commandAndLength(Command.LineTo, lineToLength));
             }
         }
