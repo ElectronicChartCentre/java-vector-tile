@@ -54,7 +54,7 @@ public class VectorTileEncoderTest extends TestCase {
 
         byte[] encoded = vtm.encode();
         assertNotSame(0, encoded.length);
-        
+
     }
 
     public void testToGeomType() {
@@ -115,6 +115,39 @@ public class VectorTileEncoderTest extends TestCase {
 
     }
 
+    public void testPoint() {
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false);
+        assertNotNull(commands);
+
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertEquals(3, commands.size());
+
+    }
+
+    public void testFourEqualPoints() {
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(3, 6));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false);
+        assertNotNull(commands);
+
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertEquals(3, commands.size());
+
+    }
+
     private void assertCommand(int expected, List<Integer> commands, int index) {
         assertEquals(expected, commands.get(index).intValue());
     }
@@ -156,7 +189,7 @@ public class VectorTileEncoderTest extends TestCase {
         assertFalse(decodedAttributes.containsKey("key2"));
 
     }
-    
+
     public void testAttributeTypes() throws IOException {
         VectorTileEncoder vtm = new VectorTileEncoder(256);
         Geometry geometry = gf.createPoint(new Coordinate(3, 6));
@@ -185,5 +218,5 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(Long.valueOf(-123), decodedAttributes.get("key5"));
         assertEquals("value6", decodedAttributes.get("key6"));
     }
-    
+
 }

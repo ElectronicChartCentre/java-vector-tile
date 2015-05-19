@@ -358,7 +358,7 @@ public class VectorTileEncoder {
             x = _x;
             y = _y;
 
-            if (i == 0) {
+            if (i == 0 && cs.length > 1) {
                 // can length be too long?
                 lineToIndex = r.size();
                 lineToLength = cs.length - 1;
@@ -368,7 +368,15 @@ public class VectorTileEncoder {
         }
 
         // update LineTo length
-        r.set(lineToIndex, commandAndLength(Command.LineTo, lineToLength));
+        if (lineToIndex > 0) {
+            if (lineToLength == 0) {
+                // remove length
+                r.remove(lineToIndex);
+            } else {
+                // update with new lenth
+                r.set(lineToIndex, commandAndLength(Command.LineTo, lineToLength));
+            }
+        }
 
         if (closePathAtEnd) {
             r.add(commandAndLength(Command.ClosePath, 1));
