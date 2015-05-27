@@ -18,11 +18,13 @@
  ****************************************************************/
 package no.ecc.vectortile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -58,12 +60,11 @@ public class VectorTileDecoderTest extends TestCase {
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(encoded);
-        assertEquals(1, d.getLayerNames().size());
-        assertEquals(layerName, d.getLayerNames().iterator().next());
+        assertEquals(1, d.decode(encoded).getLayerNames().size());
+        assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
     }
 
     public void testMultiPoint() throws IOException {
@@ -79,12 +80,11 @@ public class VectorTileDecoderTest extends TestCase {
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(encoded);
-        assertEquals(1, d.getLayerNames().size());
-        assertEquals(layerName, d.getLayerNames().iterator().next());
+        assertEquals(1, d.decode(encoded).getLayerNames().size());
+        assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
     }
 
     public void testLineString() throws IOException {
@@ -104,12 +104,11 @@ public class VectorTileDecoderTest extends TestCase {
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(encoded);
-        assertEquals(1, d.getLayerNames().size());
-        assertEquals(layerName, d.getLayerNames().iterator().next());
+        assertEquals(1, d.decode(encoded).getLayerNames().size());
+        assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
 
     }
 
@@ -132,12 +131,11 @@ public class VectorTileDecoderTest extends TestCase {
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(encoded);
-        assertEquals(1, d.getLayerNames().size());
-        assertEquals(layerName, d.getLayerNames().iterator().next());
+        assertEquals(1, d.decode(encoded).getLayerNames().size());
+        assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
 
     }
 
@@ -159,12 +157,11 @@ public class VectorTileDecoderTest extends TestCase {
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(encoded);
-        assertEquals(1, d.getLayerNames().size());
-        assertEquals(layerName, d.getLayerNames().iterator().next());
+        assertEquals(1, d.decode(encoded).getLayerNames().size());
+        assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
 
     }
 
@@ -196,13 +193,12 @@ public class VectorTileDecoderTest extends TestCase {
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(encoded);
-        assertEquals(1, d.getLayerNames().size());
-        assertEquals(layerName, d.getLayerNames().iterator().next());
+        assertEquals(1, d.decode(encoded).getLayerNames().size());
+        assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry.toText(), d.getFeatures(layerName).get(0).getGeometry().toText());
-        assertEquals(geometry, d.getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
+        assertEquals(geometry.toText(), d.decode(encoded).getFeatures(layerName).get(0).getGeometry().toText());
+        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
 
     }
 
@@ -211,18 +207,19 @@ public class VectorTileDecoderTest extends TestCase {
         // https://github.com/mapbox/vector-tile-js/tree/master/test/fixtures
         InputStream is = getClass().getResourceAsStream("/14-8801-5371.vector.pbf");
         assertNotNull(is);
-        VectorTileDecoder d = new VectorTileDecoder();
-        d.decode(is);
-        assertEquals(4096, d.getExtent());
+        byte[] encoded = toBytes(is);
 
-        d.getLayerNames().equals(
-                new HashSet<String>(Arrays.asList("landuse", "waterway", "water", "barrier_line", "building",
+        VectorTileDecoder d = new VectorTileDecoder();
+
+        d.decode(encoded)
+                .getLayerNames()
+                .equals(new HashSet<String>(Arrays.asList("landuse", "waterway", "water", "barrier_line", "building",
                         "landuse_overlay", "tunnel", "road", "bridge", "place_label", "water_label", "poi_label",
                         "road_label", "waterway_label")));
-        
-        assertEquals(558, d.getFeatures("poi_label").size());
 
-        Feature park = d.getFeatures("poi_label").get(11);
+        assertEquals(558, d.decode(encoded).getFeatures("poi_label").size());
+
+        Feature park = d.decode(encoded).getFeatures("poi_label").get(11);
         assertEquals("Mauerpark", park.getAttributes().get("name"));
         assertEquals("Park", park.getAttributes().get("type"));
 
@@ -230,18 +227,36 @@ public class VectorTileDecoderTest extends TestCase {
         assertTrue(parkGeometry instanceof Point);
         assertEquals(1, parkGeometry.getCoordinates().length);
 
-        assertEquals(new Coordinate(3898.0, 1731.0), d.getExtent(), parkGeometry.getCoordinates()[0]);
+        assertEquals(new Coordinate(3898.0, 1731.0), park.getExtent(), parkGeometry.getCoordinates()[0]);
 
-        Geometry building = d.getFeatures("building").get(0).getGeometry();
+        Feature building = d.decode(encoded).getFeatures("building").get(0);
+        Geometry buildingGeometry = d.decode(encoded).getFeatures("building").get(0).getGeometry();
         assertNotNull(building);
 
-        assertEquals(5, building.getCoordinates().length);
-        assertEquals(new Coordinate(2039, -32), d.getExtent(), building.getCoordinates()[0]);
-        assertEquals(new Coordinate(2035, -31), d.getExtent(), building.getCoordinates()[1]);
-        assertEquals(new Coordinate(2032, -31), d.getExtent(), building.getCoordinates()[2]);
-        assertEquals(new Coordinate(2032, -32), d.getExtent(), building.getCoordinates()[3]);
-        assertEquals(new Coordinate(2039, -32), d.getExtent(), building.getCoordinates()[4]);
-        
+        assertEquals(5, buildingGeometry.getCoordinates().length);
+        assertEquals(new Coordinate(2039, -32), building.getExtent(), buildingGeometry.getCoordinates()[0]);
+        assertEquals(new Coordinate(2035, -31), building.getExtent(), buildingGeometry.getCoordinates()[1]);
+        assertEquals(new Coordinate(2032, -31), building.getExtent(), buildingGeometry.getCoordinates()[2]);
+        assertEquals(new Coordinate(2032, -32), building.getExtent(), buildingGeometry.getCoordinates()[3]);
+        assertEquals(new Coordinate(2039, -32), building.getExtent(), buildingGeometry.getCoordinates()[4]);
+
+    }
+
+    public void testBigTile() throws IOException {
+        for (int i = 0; i < 10; i++) {
+            System.gc();
+            long memoryStart = Runtime.getRuntime().totalMemory();
+            InputStream is = getClass().getResourceAsStream("/bigtile.vector.pbf");
+            assertNotNull(is);
+            VectorTileDecoder d = new VectorTileDecoder();
+            for (Iterator<VectorTileDecoder.Feature> it = d.decode(is).iterator(); it.hasNext();) {
+                it.next();
+                if (!it.hasNext()) {
+                    long memoryDiff = Runtime.getRuntime().totalMemory() - memoryStart;
+                    System.out.println(memoryDiff / (1024 * 1024));
+                }
+            }
+        }
     }
 
     private void assertEquals(Coordinate expected, int extent, Coordinate actual) {
@@ -271,6 +286,16 @@ public class VectorTileDecoderTest extends TestCase {
             }
 
         }
+    }
+
+    private static byte[] toBytes(InputStream in) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int bytesRead = 0;
+        while ((bytesRead = in.read(buf)) != -1) {
+            baos.write(buf, 0, bytesRead);
+        }
+        return baos.toByteArray();
     }
 
 }

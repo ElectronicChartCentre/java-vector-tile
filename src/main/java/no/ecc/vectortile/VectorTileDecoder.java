@@ -21,11 +21,14 @@ package no.ecc.vectortile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import vector_tile.VectorTile;
@@ -38,39 +41,122 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 
 public class VectorTileDecoder {
-
-    private int extent;
-    private final Map<String, List<Feature>> featuresByLayerName = new HashMap<String, List<Feature>>();
-
-    public void decode(byte[] data) throws IOException {
+    
+    public FeatureIterable decode(byte[] data) throws IOException {
         VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(data);
-        decode(tile);
+        return new FeatureIterable(tile);
     }
-    
-    public void decode(InputStream in) throws IOException {
+
+    public FeatureIterable decode(InputStream in) throws IOException {
         VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(in);
-        decode(tile);
+        return new FeatureIterable(tile);
     }
-    
-    private void decode(VectorTile.Tile tile) throws IOException {
 
-        GeometryFactory gf = new GeometryFactory();
+    static int zigZagDecode(int n) {
+        return ((n >> 1) ^ (-(n & 1)));
+    }
 
+    public static final class FeatureIterable implements Iterable<Feature> {
 
-        for (VectorTile.Tile.Layer layer : tile.getLayersList()) {
+        private final VectorTile.Tile tile;
 
-            String layerName = layer.getName();
-            extent = layer.getExtent();
-            double scale = extent / 256.0;
+        public FeatureIterable(VectorTile.Tile tile) {
+            this.tile = tile;
+        }
 
-            List<Feature> features = featuresByLayerName.get(layerName);
-            if (features == null) {
-                features = new ArrayList<VectorTileDecoder.Feature>();
-                featuresByLayerName.put(layerName, features);
+        public Iterator<Feature> iterator() {
+            return new FeatureIterator(tile);
+        }
+
+        public List<Feature> getFeatures(String layerName) {
+            List<Feature> features = new ArrayList<VectorTileDecoder.Feature>();
+            for (Feature feature : this) {
+                if (feature.getLayerName().equals(layerName)) {
+                    features.add(feature);
+                }
+            }
+            return features;
+        }
+
+        public Collection<String> getLayerNames() {
+            Set<String> layerNames = new HashSet<String>();
+            for (VectorTile.Tile.Layer layer : tile.getLayersList()) {
+                layerNames.add(layer.getName());
+            }
+            return Collections.unmodifiableSet(layerNames);
+        }
+
+    }
+
+    private static final class FeatureIterator implements Iterator<Feature> {
+
+        private final GeometryFactory gf = new GeometryFactory();
+
+        private final Iterator<VectorTile.Tile.Layer> layerIterator;
+
+        private Iterator<VectorTile.Tile.Feature> featureIterator;
+
+        private int extent;
+        private String layerName;
+        private double scale;
+
+        private final List<String> keys = new ArrayList<String>();
+        private final List<Object> values = new ArrayList<Object>();
+
+        private Feature next;
+
+        public FeatureIterator(VectorTile.Tile tile) {
+            layerIterator = tile.getLayersList().iterator();
+        }
+
+        public boolean hasNext() {
+            findNext();
+            return next != null;
+        }
+
+        public Feature next() {
+            findNext();
+            if (next == null) {
+                throw new NoSuchElementException();
+            }
+            Feature n = next;
+            next = null;
+            return n;
+        }
+
+        private void findNext() {
+
+            if (next != null) {
+                return;
             }
 
-            List<String> keys = new ArrayList<String>(layer.getKeysList());
-            List<Object> values = new ArrayList<Object>();
+            while (true) {
+
+                if (featureIterator == null || !featureIterator.hasNext()) {
+                    if (!layerIterator.hasNext()) {
+                        next = null;
+                        break;
+                    }
+                    parseLayer(layerIterator.next());
+                    continue;
+                }
+
+                next = parseFeature(featureIterator.next());
+                break;
+
+            }
+
+        }
+
+        private void parseLayer(VectorTile.Tile.Layer layer) {
+
+            layerName = layer.getName();
+            extent = layer.getExtent();
+            scale = extent / 256.0;
+
+            keys.clear();
+            keys.addAll(layer.getKeysList());
+            values.clear();
 
             for (VectorTile.Tile.Value value : layer.getValuesList()) {
                 if (value.hasBoolValue()) {
@@ -92,148 +178,140 @@ public class VectorTileDecoder {
                 }
             }
 
-            for (VectorTile.Tile.Feature feature : layer.getFeaturesList()) {
+            featureIterator = layer.getFeaturesList().iterator();
+        }
 
-                int tagsCount = feature.getTagsCount();
-                Map<String, Object> attributes = new HashMap<String, Object>(tagsCount / 2);
-                for (Iterator<Integer> it = feature.getTagsList().iterator(); it.hasNext();) {
-                    String key = keys.get(it.next());
-                    Object value = values.get(it.next());
-                    attributes.put(key, value);
+        private Feature parseFeature(VectorTile.Tile.Feature feature) {
+
+            int tagsCount = feature.getTagsCount();
+            Map<String, Object> attributes = new HashMap<String, Object>(tagsCount / 2);
+            for (Iterator<Integer> it = feature.getTagsList().iterator(); it.hasNext();) {
+                String key = keys.get(it.next());
+                Object value = values.get(it.next());
+                attributes.put(key, value);
+            }
+
+            int x = 0;
+            int y = 0;
+
+            List<List<Coordinate>> coordsList = new ArrayList<List<Coordinate>>();
+            List<Coordinate> coords = null;
+
+            int geometryCount = feature.getGeometryCount();
+            int length = 0;
+            int command = 0;
+            int i = 0;
+            while (i < geometryCount) {
+
+                if (length <= 0) {
+                    length = feature.getGeometry(i++);
+                    command = length & ((1 << 3) - 1);
+                    length = length >> 3;
                 }
 
-                int x = 0;
-                int y = 0;
+                if (length > 0) {
 
-                List<List<Coordinate>> coordsList = new ArrayList<List<Coordinate>>();
-                List<Coordinate> coords = null;
-
-                int geometryCount = feature.getGeometryCount();
-                int length = 0;
-                int command = 0;
-                int i = 0;
-                while (i < geometryCount) {
-
-                    if (length <= 0) {
-                        length = feature.getGeometry(i++);
-                        command = length & ((1 << 3) - 1);
-                        length = length >> 3;
+                    if (command == Command.MoveTo) {
+                        coords = new ArrayList<Coordinate>();
+                        coordsList.add(coords);
                     }
 
-                    if (length > 0) {
-
-                        if (command == Command.MoveTo) {
-                            coords = new ArrayList<Coordinate>();
-                            coordsList.add(coords);
+                    if (command == Command.ClosePath) {
+                        if (feature.getType() != GeomType.POINT && !coords.isEmpty()) {
+                            coords.add(coords.get(0));
                         }
-
-                        if (command == Command.ClosePath) {
-                            if (feature.getType() != GeomType.POINT && !coords.isEmpty()) {
-                                coords.add(coords.get(0));
-                            }
-                            length--;
-                            continue;
-                        }
-
-                        int dx = feature.getGeometry(i++);
-                        int dy = feature.getGeometry(i++);
-
                         length--;
-
-                        dx = zigZagDecode(dx);
-                        dy = zigZagDecode(dy);
-
-                        x = x + dx;
-                        y = y + dy;
-
-                        Coordinate coord = new Coordinate(x / scale, y / scale);
-                        coords.add(coord);
+                        continue;
                     }
 
+                    int dx = feature.getGeometry(i++);
+                    int dy = feature.getGeometry(i++);
+
+                    length--;
+
+                    dx = zigZagDecode(dx);
+                    dy = zigZagDecode(dy);
+
+                    x = x + dx;
+                    y = y + dy;
+
+                    Coordinate coord = new Coordinate(x / scale, y / scale);
+                    coords.add(coord);
                 }
-
-                Geometry geometry = null;
-
-                switch (feature.getType()) {
-                case LINESTRING:
-                    List<LineString> lineStrings = new ArrayList<LineString>();
-                    for (List<Coordinate> cs : coordsList) {
-                        lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
-                    }
-                    if (lineStrings.size() == 1) {
-                        geometry = lineStrings.get(0);
-                    } else if (lineStrings.size() > 1) {
-                        geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
-                    }
-                    break;
-                case POINT:
-                    List<Coordinate> allCoords = new ArrayList<Coordinate>();
-                    for (List<Coordinate> cs : coordsList) {
-                        allCoords.addAll(cs);
-                    }
-                    if (allCoords.size() == 1) {
-                        geometry = gf.createPoint(allCoords.get(0));
-                    } else if (allCoords.size() > 1) {
-                        geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
-                    }
-                    break;
-                case POLYGON:
-                    List<LinearRing> rings = new ArrayList<LinearRing>();
-                    for (List<Coordinate> cs : coordsList) {
-                        rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
-                    }
-                    if (rings.size() > 0) {
-                        LinearRing shell = rings.get(0);
-                        LinearRing[] holes = rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]);
-                        geometry = gf.createPolygon(shell, holes);
-                    }
-                    break;
-                case UNKNOWN:
-                    break;
-                default:
-                    break;
-                }
-
-                if (geometry == null) {
-                    geometry = gf.createGeometryCollection(new Geometry[0]);
-                }
-
-                features.add(new Feature(geometry, Collections.unmodifiableMap(attributes)));
 
             }
 
+            Geometry geometry = null;
+
+            switch (feature.getType()) {
+            case LINESTRING:
+                List<LineString> lineStrings = new ArrayList<LineString>();
+                for (List<Coordinate> cs : coordsList) {
+                    lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
+                }
+                if (lineStrings.size() == 1) {
+                    geometry = lineStrings.get(0);
+                } else if (lineStrings.size() > 1) {
+                    geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
+                }
+                break;
+            case POINT:
+                List<Coordinate> allCoords = new ArrayList<Coordinate>();
+                for (List<Coordinate> cs : coordsList) {
+                    allCoords.addAll(cs);
+                }
+                if (allCoords.size() == 1) {
+                    geometry = gf.createPoint(allCoords.get(0));
+                } else if (allCoords.size() > 1) {
+                    geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
+                }
+                break;
+            case POLYGON:
+                List<LinearRing> rings = new ArrayList<LinearRing>();
+                for (List<Coordinate> cs : coordsList) {
+                    rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
+                }
+                if (rings.size() > 0) {
+                    LinearRing shell = rings.get(0);
+                    LinearRing[] holes = rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]);
+                    geometry = gf.createPolygon(shell, holes);
+                }
+                break;
+            case UNKNOWN:
+                break;
+            default:
+                break;
+            }
+
+            if (geometry == null) {
+                geometry = gf.createGeometryCollection(new Geometry[0]);
+            }
+
+            return new Feature(layerName, extent, geometry, Collections.unmodifiableMap(attributes));
         }
 
-    }
-
-    public Set<String> getLayerNames() {
-        return Collections.unmodifiableSet(featuresByLayerName.keySet());
-    }
-
-    public List<Feature> getFeatures(String layerName) {
-        List<Feature> features = featuresByLayerName.get(layerName);
-        if (features == null) {
-            return Collections.emptyList();
-        }
-        return Collections.unmodifiableList(features);
-    }
-    
-    int getExtent() {
-        return extent;
-    }
-
-    static int zigZagDecode(int n) {
-        return ((n >> 1) ^ (-(n & 1)));
     }
 
     public static final class Feature {
 
+        private final String layerName;
+        private final int extent;
         private final Geometry geometry;
         private final Map<String, Object> attributes;
 
-        public Feature(Geometry geometry, Map<String, Object> attributes) {
+        public Feature(String layerName, int extent, Geometry geometry, Map<String, Object> attributes) {
+            this.layerName = layerName;
+            this.extent = extent;
             this.geometry = geometry;
             this.attributes = attributes;
+        }
+
+        public String getLayerName() {
+            return layerName;
+        }
+
+        public int getExtent() {
+            return extent;
         }
 
         public Geometry getGeometry() {
