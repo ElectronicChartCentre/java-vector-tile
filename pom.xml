@@ -17,11 +17,11 @@
     </dependency>
                 
     <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java</artifactId>
-        <version>2.6.1</version>
+        <groupId>com.google.protobuf.nano</groupId>
+        <artifactId>protobuf-javanano</artifactId>
+        <version>3.0.0-alpha-2</version>
     </dependency>
-  
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

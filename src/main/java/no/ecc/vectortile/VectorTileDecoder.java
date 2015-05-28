@@ -19,8 +19,8 @@
 package no.ecc.vectortile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +32,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import vector_tile.VectorTile;
-import vector_tile.VectorTile.Tile.GeomType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -43,12 +42,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 public class VectorTileDecoder {
     
     public FeatureIterable decode(byte[] data) throws IOException {
-        VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(data);
-        return new FeatureIterable(tile);
-    }
-
-    public FeatureIterable decode(InputStream in) throws IOException {
-        VectorTile.Tile tile = VectorTile.Tile.PARSER.parseFrom(in);
+        VectorTile.Tile tile = VectorTile.Tile.parseFrom(data);
         return new FeatureIterable(tile);
     }
 
@@ -80,8 +74,8 @@ public class VectorTileDecoder {
 
         public Collection<String> getLayerNames() {
             Set<String> layerNames = new HashSet<String>();
-            for (VectorTile.Tile.Layer layer : tile.getLayersList()) {
-                layerNames.add(layer.getName());
+            for (VectorTile.Tile.Layer layer : tile.layers) {
+                layerNames.add(layer.name);
             }
             return Collections.unmodifiableSet(layerNames);
         }
@@ -106,7 +100,7 @@ public class VectorTileDecoder {
         private Feature next;
 
         public FeatureIterator(VectorTile.Tile tile) {
-            layerIterator = tile.getLayersList().iterator();
+            layerIterator = Arrays.asList(tile.layers).iterator();
         }
 
         public boolean hasNext() {
@@ -150,44 +144,47 @@ public class VectorTileDecoder {
 
         private void parseLayer(VectorTile.Tile.Layer layer) {
 
-            layerName = layer.getName();
-            extent = layer.getExtent();
+            layerName = layer.name;
+            extent = layer.extent;
             scale = extent / 256.0;
 
             keys.clear();
-            keys.addAll(layer.getKeysList());
+            keys.addAll(Arrays.asList(layer.keys));
             values.clear();
 
-            for (VectorTile.Tile.Value value : layer.getValuesList()) {
-                if (value.hasBoolValue()) {
-                    values.add(value.getBoolValue());
-                } else if (value.hasDoubleValue()) {
-                    values.add(value.getDoubleValue());
-                } else if (value.hasFloatValue()) {
-                    values.add(value.getFloatValue());
-                } else if (value.hasIntValue()) {
-                    values.add(value.getIntValue());
-                } else if (value.hasSintValue()) {
-                    values.add(value.getSintValue());
-                } else if (value.hasUintValue()) {
-                    values.add(value.getUintValue());
-                } else if (value.hasStringValue()) {
-                    values.add(value.getStringValue());
+            for (VectorTile.Tile.Value value : layer.values) {
+                
+                if (value.boolValue) {
+                    values.add(value.boolValue);
+                } else if (value.stringValue != null && value.stringValue.length() > 0) {
+                    values.add(value.stringValue);
+                } else if (value.intValue != 0l) {
+                    values.add(value.intValue);
+                } else if (value.sintValue != 0l) {
+                    values.add(value.sintValue);
+                } else if (value.uintValue != 0l) {
+                    values.add(value.uintValue);
+                } else if (value.doubleValue != 0d) {
+                    values.add(value.doubleValue);
+                } else if (value.floatValue != 0f) {
+                    values.add(value.floatValue);
                 } else {
                     values.add(null);
                 }
+
             }
 
-            featureIterator = layer.getFeaturesList().iterator();
+            featureIterator = Arrays.asList(layer.features).iterator();
         }
 
         private Feature parseFeature(VectorTile.Tile.Feature feature) {
 
-            int tagsCount = feature.getTagsCount();
+            int tagsCount = feature.tags.length;
             Map<String, Object> attributes = new HashMap<String, Object>(tagsCount / 2);
-            for (Iterator<Integer> it = feature.getTagsList().iterator(); it.hasNext();) {
-                String key = keys.get(it.next());
-                Object value = values.get(it.next());
+            int tagIdx = 0; 
+            while(tagIdx < feature.tags.length) {
+                String key = keys.get(feature.tags[tagIdx++]);
+                Object value = values.get(feature.tags[tagIdx++]);
                 attributes.put(key, value);
             }
 
@@ -197,14 +194,14 @@ public class VectorTileDecoder {
             List<List<Coordinate>> coordsList = new ArrayList<List<Coordinate>>();
             List<Coordinate> coords = null;
 
-            int geometryCount = feature.getGeometryCount();
+            int geometryCount = feature.geometry.length;
             int length = 0;
             int command = 0;
             int i = 0;
             while (i < geometryCount) {
 
                 if (length <= 0) {
-                    length = feature.getGeometry(i++);
+                    length = feature.geometry[i++];
                     command = length & ((1 << 3) - 1);
                     length = length >> 3;
                 }
@@ -217,15 +214,15 @@ public class VectorTileDecoder {
                     }
 
                     if (command == Command.ClosePath) {
-                        if (feature.getType() != GeomType.POINT && !coords.isEmpty()) {
+                        if (feature.type != VectorTile.Tile.POINT && !coords.isEmpty()) {
                             coords.add(coords.get(0));
                         }
                         length--;
                         continue;
                     }
 
-                    int dx = feature.getGeometry(i++);
-                    int dy = feature.getGeometry(i++);
+                    int dx = feature.geometry[i++];
+                    int dy = feature.geometry[i++];
 
                     length--;
 
@@ -243,8 +240,8 @@ public class VectorTileDecoder {
 
             Geometry geometry = null;
 
-            switch (feature.getType()) {
-            case LINESTRING:
+            switch (feature.type) {
+            case VectorTile.Tile.LINESTRING:
                 List<LineString> lineStrings = new ArrayList<LineString>();
                 for (List<Coordinate> cs : coordsList) {
                     lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
@@ -255,7 +252,7 @@ public class VectorTileDecoder {
                     geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
                 }
                 break;
-            case POINT:
+            case VectorTile.Tile.POINT:
                 List<Coordinate> allCoords = new ArrayList<Coordinate>();
                 for (List<Coordinate> cs : coordsList) {
                     allCoords.addAll(cs);
@@ -266,7 +263,7 @@ public class VectorTileDecoder {
                     geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
                 }
                 break;
-            case POLYGON:
+            case VectorTile.Tile.POLYGON:
                 List<LinearRing> rings = new ArrayList<LinearRing>();
                 for (List<Coordinate> cs : coordsList) {
                     rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
@@ -277,7 +274,7 @@ public class VectorTileDecoder {
                     geometry = gf.createPolygon(shell, holes);
                 }
                 break;
-            case UNKNOWN:
+            case VectorTile.Tile.UNKNOWN:
                 break;
             default:
                 break;

@@ -249,7 +249,7 @@ public class VectorTileDecoderTest extends TestCase {
             InputStream is = getClass().getResourceAsStream("/bigtile.vector.pbf");
             assertNotNull(is);
             VectorTileDecoder d = new VectorTileDecoder();
-            for (Iterator<VectorTileDecoder.Feature> it = d.decode(is).iterator(); it.hasNext();) {
+            for (Iterator<VectorTileDecoder.Feature> it = d.decode(toBytes(is)).iterator(); it.hasNext();) {
                 it.next();
                 if (!it.hasNext()) {
                     long memoryDiff = Runtime.getRuntime().totalMemory() - memoryStart;
