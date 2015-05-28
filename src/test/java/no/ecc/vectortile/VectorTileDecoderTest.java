@@ -63,8 +63,8 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, d.decode(encoded).getLayerNames().size());
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded, layerName).iterator().next().getAttributes());
+        assertEquals(geometry, d.decode(encoded, layerName).iterator().next().getGeometry());
     }
 
     public void testMultiPoint() throws IOException {
@@ -83,8 +83,8 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, d.decode(encoded).getLayerNames().size());
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded, layerName).asList().get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded, layerName).asList().get(0).getGeometry());
     }
 
     public void testLineString() throws IOException {
@@ -107,8 +107,8 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, d.decode(encoded).getLayerNames().size());
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded, layerName).asList().get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded, layerName).asList().get(0).getGeometry());
 
     }
 
@@ -134,8 +134,8 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, d.decode(encoded).getLayerNames().size());
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded, layerName).asList().get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded, layerName).asList().get(0).getGeometry());
 
     }
 
@@ -160,8 +160,8 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, d.decode(encoded).getLayerNames().size());
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded, layerName).asList().get(0).getAttributes());
+        assertEquals(geometry, d.decode(encoded, layerName).asList().get(0).getGeometry());
 
     }
 
@@ -196,9 +196,9 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, d.decode(encoded).getLayerNames().size());
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
-        assertEquals(attributes, d.decode(encoded).getFeatures(layerName).get(0).getAttributes());
-        assertEquals(geometry.toText(), d.decode(encoded).getFeatures(layerName).get(0).getGeometry().toText());
-        assertEquals(geometry, d.decode(encoded).getFeatures(layerName).get(0).getGeometry());
+        assertEquals(attributes, d.decode(encoded, layerName).asList().get(0).getAttributes());
+        assertEquals(geometry.toText(), d.decode(encoded, layerName).asList().get(0).getGeometry().toText());
+        assertEquals(geometry, d.decode(encoded, layerName).asList().get(0).getGeometry());
 
     }
 
@@ -217,9 +217,9 @@ public class VectorTileDecoderTest extends TestCase {
                         "landuse_overlay", "tunnel", "road", "bridge", "place_label", "water_label", "poi_label",
                         "road_label", "waterway_label")));
 
-        assertEquals(558, d.decode(encoded).getFeatures("poi_label").size());
+        assertEquals(558, d.decode(encoded, "poi_label").asList().size());
 
-        Feature park = d.decode(encoded).getFeatures("poi_label").get(11);
+        Feature park = d.decode(encoded, "poi_label").asList().get(11);
         assertEquals("Mauerpark", park.getAttributes().get("name"));
         assertEquals("Park", park.getAttributes().get("type"));
 
@@ -229,8 +229,8 @@ public class VectorTileDecoderTest extends TestCase {
 
         assertEquals(new Coordinate(3898.0, 1731.0), park.getExtent(), parkGeometry.getCoordinates()[0]);
 
-        Feature building = d.decode(encoded).getFeatures("building").get(0);
-        Geometry buildingGeometry = d.decode(encoded).getFeatures("building").get(0).getGeometry();
+        Feature building = d.decode(encoded, "building").asList().get(0);
+        Geometry buildingGeometry = d.decode(encoded, "building").asList().get(0).getGeometry();
         assertNotNull(building);
 
         assertEquals(5, buildingGeometry.getCoordinates().length);
@@ -297,5 +297,5 @@ public class VectorTileDecoderTest extends TestCase {
         }
         return baos.toByteArray();
     }
-
+    
 }

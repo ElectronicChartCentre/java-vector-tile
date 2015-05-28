@@ -181,8 +181,8 @@ public class VectorTileEncoderTest extends TestCase {
         assertNotSame(0, encoded.length);
 
         VectorTileDecoder decoder = new VectorTileDecoder();
-        assertEquals(1, decoder.decode(encoded).getFeatures("DEPCNT").size());
-        Map<String, Object> decodedAttributes = decoder.decode(encoded).getFeatures("DEPCNT").get(0).getAttributes();
+        assertEquals(1, decoder.decode(encoded, "DEPCNT").asList().size());
+        Map<String, Object> decodedAttributes = decoder.decode(encoded, "DEPCNT").asList().get(0).getAttributes();
         assertEquals("value1", decodedAttributes.get("key1"));
         assertEquals("value3", decodedAttributes.get("key3"));
         assertFalse(decodedAttributes.containsKey("key2"));
@@ -207,8 +207,8 @@ public class VectorTileEncoderTest extends TestCase {
         assertNotSame(0, encoded.length);
 
         VectorTileDecoder decoder = new VectorTileDecoder();
-        assertEquals(1, decoder.decode(encoded).getFeatures("DEPCNT").size());
-        Map<String, Object> decodedAttributes = decoder.decode(encoded).getFeatures("DEPCNT").get(0).getAttributes();
+        assertEquals(1, decoder.decode(encoded, "DEPCNT").asList().size());
+        Map<String, Object> decodedAttributes = decoder.decode(encoded, "DEPCNT").asList().get(0).getAttributes();
         assertEquals("value1", decodedAttributes.get("key1"));
         assertEquals(Long.valueOf(123), decodedAttributes.get("key2"));
         assertEquals(Float.valueOf(234.1f), decodedAttributes.get("key3"));

@@ -32,6 +32,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import vector_tile.VectorTile;
+import vector_tile.VectorTile.Tile.Layer;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -40,10 +41,18 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 
 public class VectorTileDecoder {
-    
+
     public FeatureIterable decode(byte[] data) throws IOException {
+        return decode(data, Filter.ALL);
+    }
+
+    public FeatureIterable decode(byte[] data, String layerName) throws IOException {
+        return decode(data, new Filter.Single(layerName));
+    }
+
+    private FeatureIterable decode(byte[] data, Filter filter) throws IOException {
         VectorTile.Tile tile = VectorTile.Tile.parseFrom(data);
-        return new FeatureIterable(tile);
+        return new FeatureIterable(tile, filter);
     }
 
     static int zigZagDecode(int n) {
@@ -53,21 +62,21 @@ public class VectorTileDecoder {
     public static final class FeatureIterable implements Iterable<Feature> {
 
         private final VectorTile.Tile tile;
+        private final Filter filter;
 
-        public FeatureIterable(VectorTile.Tile tile) {
+        public FeatureIterable(VectorTile.Tile tile, Filter filter) {
             this.tile = tile;
+            this.filter = filter;
         }
 
         public Iterator<Feature> iterator() {
-            return new FeatureIterator(tile);
+            return new FeatureIterator(tile, filter);
         }
 
-        public List<Feature> getFeatures(String layerName) {
+        public List<Feature> asList() {
             List<Feature> features = new ArrayList<VectorTileDecoder.Feature>();
             for (Feature feature : this) {
-                if (feature.getLayerName().equals(layerName)) {
-                    features.add(feature);
-                }
+                features.add(feature);
             }
             return features;
         }
@@ -86,6 +95,8 @@ public class VectorTileDecoder {
 
         private final GeometryFactory gf = new GeometryFactory();
 
+        private final Filter filter;
+
         private final Iterator<VectorTile.Tile.Layer> layerIterator;
 
         private Iterator<VectorTile.Tile.Feature> featureIterator;
@@ -99,8 +110,9 @@ public class VectorTileDecoder {
 
         private Feature next;
 
-        public FeatureIterator(VectorTile.Tile tile) {
+        public FeatureIterator(VectorTile.Tile tile, Filter filter) {
             layerIterator = Arrays.asList(tile.layers).iterator();
+            this.filter = filter;
         }
 
         public boolean hasNext() {
@@ -131,7 +143,13 @@ public class VectorTileDecoder {
                         next = null;
                         break;
                     }
-                    parseLayer(layerIterator.next());
+
+                    Layer layer = layerIterator.next();
+                    if (!filter.include(layer.name)) {
+                        continue;
+                    }
+
+                    parseLayer(layer);
                     continue;
                 }
 
@@ -153,7 +171,7 @@ public class VectorTileDecoder {
             values.clear();
 
             for (VectorTile.Tile.Value value : layer.values) {
-                
+
                 if (value.boolValue) {
                     values.add(value.boolValue);
                 } else if (value.stringValue != null && value.stringValue.length() > 0) {
@@ -181,8 +199,8 @@ public class VectorTileDecoder {
 
             int tagsCount = feature.tags.length;
             Map<String, Object> attributes = new HashMap<String, Object>(tagsCount / 2);
-            int tagIdx = 0; 
-            while(tagIdx < feature.tags.length) {
+            int tagIdx = 0;
+            while (tagIdx < feature.tags.length) {
                 String key = keys.get(feature.tags[tagIdx++]);
                 Object value = values.get(feature.tags[tagIdx++]);
                 attributes.put(key, value);
