@@ -195,40 +195,40 @@ public class VectorTileEncoder {
      */
     public byte[] encode() {
 
-        VectorTile.Tile tileBuilder = new VectorTile.Tile();
+        VectorTile.Tile tile = new VectorTile.Tile();
 
         List<VectorTile.Tile.Layer> tileLayers = new ArrayList<VectorTile.Tile.Layer>();
         for (Map.Entry<String, Layer> e : layers.entrySet()) {
             String layerName = e.getKey();
             Layer layer = e.getValue();
 
-            VectorTile.Tile.Layer layerBuilder = new VectorTile.Tile.Layer();
-            layerBuilder.version = 1;
-            layerBuilder.name = layerName;
+            VectorTile.Tile.Layer tileLayer = new VectorTile.Tile.Layer();
+            tileLayer.version = 1;
+            tileLayer.name = layerName;
 
-            layerBuilder.keys = layer.keys();
+            tileLayer.keys = layer.keys();
 
             List<VectorTile.Tile.Value> values = new ArrayList<VectorTile.Tile.Value>();
             for (Object value : layer.values()) {
-                VectorTile.Tile.Value valueBuilder = new VectorTile.Tile.Value();
+                VectorTile.Tile.Value tileValue = new VectorTile.Tile.Value();
                 if (value instanceof String) {
-                    valueBuilder.stringValue = (String) value;
+                    tileValue.stringValue = (String) value;
                 } else if (value instanceof Integer) {
-                    valueBuilder.sintValue = ((Integer) value).intValue();
+                    tileValue.sintValue = ((Integer) value).intValue();
                 } else if (value instanceof Long) {
-                    valueBuilder.sintValue = ((Long) value).longValue();
+                    tileValue.sintValue = ((Long) value).longValue();
                 } else if (value instanceof Float) {
-                    valueBuilder.floatValue = ((Float) value).floatValue();
+                    tileValue.floatValue = ((Float) value).floatValue();
                 } else if (value instanceof Double) {
-                    valueBuilder.doubleValue = ((Double) value).doubleValue();
+                    tileValue.doubleValue = ((Double) value).doubleValue();
                 } else {
-                    valueBuilder.stringValue = value.toString();
+                    tileValue.stringValue = value.toString();
                 }
-                values.add(valueBuilder);
+                values.add(tileValue);
             }
-            layerBuilder.values = values.toArray(new VectorTile.Tile.Value[values.size()]);
+            tileLayer.values = values.toArray(new VectorTile.Tile.Value[values.size()]);
 
-            layerBuilder.extent = extent;
+            tileLayer.extent = extent;
 
             List<VectorTile.Tile.Feature> features = new ArrayList<VectorTile.Tile.Feature>();
             for (Feature feature : layer.features) {
@@ -244,14 +244,14 @@ public class VectorTileEncoder {
                 features.add(featureBuilder);
             }
 
-            layerBuilder.features = features.toArray(new VectorTile.Tile.Feature[features.size()]);
-            tileLayers.add(layerBuilder);
+            tileLayer.features = features.toArray(new VectorTile.Tile.Feature[features.size()]);
+            tileLayers.add(tileLayer);
 
         }
         
-        tileBuilder.layers = tileLayers.toArray(new VectorTile.Tile.Layer[tileLayers.size()]);
+        tile.layers = tileLayers.toArray(new VectorTile.Tile.Layer[tileLayers.size()]);
 
-        return MessageNano.toByteArray(tileBuilder);
+        return MessageNano.toByteArray(tile);
     }
     
     static int[] toIntArray(List<Integer> ints) {
