@@ -212,23 +212,23 @@ public class VectorTileEncoder {
             for (Object value : layer.values()) {
                 VectorTile.Tile.Value tileValue = new VectorTile.Tile.Value();
                 if (value instanceof String) {
-                    tileValue.stringValue = (String) value;
+                    tileValue.setStringValue((String) value);
                 } else if (value instanceof Integer) {
-                    tileValue.sintValue = ((Integer) value).intValue();
+                    tileValue.setSintValue(((Integer) value).intValue());
                 } else if (value instanceof Long) {
-                    tileValue.sintValue = ((Long) value).longValue();
+                    tileValue.setSintValue(((Long) value).longValue());
                 } else if (value instanceof Float) {
-                    tileValue.floatValue = ((Float) value).floatValue();
+                    tileValue.setFloatValue(((Float) value).floatValue());
                 } else if (value instanceof Double) {
-                    tileValue.doubleValue = ((Double) value).doubleValue();
+                    tileValue.setDoubleValue(((Double) value).doubleValue());
                 } else {
-                    tileValue.stringValue = value.toString();
+                    tileValue.setStringValue(value.toString());
                 }
                 values.add(tileValue);
             }
             tileLayer.values = values.toArray(new VectorTile.Tile.Value[values.size()]);
 
-            tileLayer.extent = extent;
+            tileLayer.setExtent(extent);
 
             List<VectorTile.Tile.Feature> features = new ArrayList<VectorTile.Tile.Feature>();
             for (Feature feature : layer.features) {
@@ -238,7 +238,7 @@ public class VectorTileEncoder {
                 VectorTile.Tile.Feature featureBuilder = new VectorTile.Tile.Feature();
 
                 featureBuilder.tags = toIntArray(feature.tags);
-                featureBuilder.type = toGeomType(geometry);
+                featureBuilder.setType(toGeomType(geometry));
                 featureBuilder.geometry = toIntArray(commands(geometry));
 
                 features.add(featureBuilder);

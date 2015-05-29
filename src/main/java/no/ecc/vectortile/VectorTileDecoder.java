@@ -163,7 +163,7 @@ public class VectorTileDecoder {
         private void parseLayer(VectorTile.Tile.Layer layer) {
 
             layerName = layer.name;
-            extent = layer.extent;
+            extent = layer.getExtent();
             scale = extent / 256.0;
 
             keys.clear();
@@ -171,21 +171,20 @@ public class VectorTileDecoder {
             values.clear();
 
             for (VectorTile.Tile.Value value : layer.values) {
-
-                if (value.boolValue) {
-                    values.add(value.boolValue);
-                } else if (value.stringValue != null && value.stringValue.length() > 0) {
-                    values.add(value.stringValue);
-                } else if (value.intValue != 0l) {
-                    values.add(value.intValue);
-                } else if (value.sintValue != 0l) {
-                    values.add(value.sintValue);
-                } else if (value.uintValue != 0l) {
-                    values.add(value.uintValue);
-                } else if (value.doubleValue != 0d) {
-                    values.add(value.doubleValue);
-                } else if (value.floatValue != 0f) {
-                    values.add(value.floatValue);
+                if (value.hasBoolValue()) {
+                    values.add(value.getBoolValue());
+                } else if (value.hasDoubleValue()) {
+                    values.add(value.getDoubleValue());
+                } else if (value.hasFloatValue()) {
+                    values.add(value.getFloatValue());
+                } else if (value.hasIntValue()) {
+                    values.add(value.getIntValue());
+                } else if (value.hasSintValue()) {
+                    values.add(value.getSintValue());
+                } else if (value.hasUintValue()) {
+                    values.add(value.getUintValue());
+                } else if (value.hasStringValue()) {
+                    values.add(value.getStringValue());
                 } else {
                     values.add(null);
                 }
@@ -232,7 +231,7 @@ public class VectorTileDecoder {
                     }
 
                     if (command == Command.ClosePath) {
-                        if (feature.type != VectorTile.Tile.POINT && !coords.isEmpty()) {
+                        if (feature.getType() != VectorTile.Tile.POINT && !coords.isEmpty()) {
                             coords.add(coords.get(0));
                         }
                         length--;
@@ -258,7 +257,7 @@ public class VectorTileDecoder {
 
             Geometry geometry = null;
 
-            switch (feature.type) {
+            switch (feature.getType()) {
             case VectorTile.Tile.LINESTRING:
                 List<LineString> lineStrings = new ArrayList<LineString>();
                 for (List<Coordinate> cs : coordsList) {

@@ -31,39 +31,157 @@ public interface VectorTile {
         return _emptyArray;
       }
 
+      private int bitField0_;
+
       // optional string string_value = 1;
-      public java.lang.String stringValue;
+      private java.lang.String stringValue_;
+      public java.lang.String getStringValue() {
+        return stringValue_;
+      }
+      public Value setStringValue(java.lang.String value) {
+        if (value == null) {
+          throw new java.lang.NullPointerException();
+        }
+        stringValue_ = value;
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public boolean hasStringValue() {
+        return ((bitField0_ & 0x00000001) != 0);
+      }
+      public Value clearStringValue() {
+        stringValue_ = "";
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
 
       // optional float float_value = 2;
-      public float floatValue;
+      private float floatValue_;
+      public float getFloatValue() {
+        return floatValue_;
+      }
+      public Value setFloatValue(float value) {
+        floatValue_ = value;
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public boolean hasFloatValue() {
+        return ((bitField0_ & 0x00000002) != 0);
+      }
+      public Value clearFloatValue() {
+        floatValue_ = 0F;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
 
       // optional double double_value = 3;
-      public double doubleValue;
+      private double doubleValue_;
+      public double getDoubleValue() {
+        return doubleValue_;
+      }
+      public Value setDoubleValue(double value) {
+        doubleValue_ = value;
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      public boolean hasDoubleValue() {
+        return ((bitField0_ & 0x00000004) != 0);
+      }
+      public Value clearDoubleValue() {
+        doubleValue_ = 0D;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
 
       // optional int64 int_value = 4;
-      public long intValue;
+      private long intValue_;
+      public long getIntValue() {
+        return intValue_;
+      }
+      public Value setIntValue(long value) {
+        intValue_ = value;
+        bitField0_ |= 0x00000008;
+        return this;
+      }
+      public boolean hasIntValue() {
+        return ((bitField0_ & 0x00000008) != 0);
+      }
+      public Value clearIntValue() {
+        intValue_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        return this;
+      }
 
       // optional uint64 uint_value = 5;
-      public long uintValue;
+      private long uintValue_;
+      public long getUintValue() {
+        return uintValue_;
+      }
+      public Value setUintValue(long value) {
+        uintValue_ = value;
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      public boolean hasUintValue() {
+        return ((bitField0_ & 0x00000010) != 0);
+      }
+      public Value clearUintValue() {
+        uintValue_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
 
       // optional sint64 sint_value = 6;
-      public long sintValue;
+      private long sintValue_;
+      public long getSintValue() {
+        return sintValue_;
+      }
+      public Value setSintValue(long value) {
+        sintValue_ = value;
+        bitField0_ |= 0x00000020;
+        return this;
+      }
+      public boolean hasSintValue() {
+        return ((bitField0_ & 0x00000020) != 0);
+      }
+      public Value clearSintValue() {
+        sintValue_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000020);
+        return this;
+      }
 
       // optional bool bool_value = 7;
-      public boolean boolValue;
+      private boolean boolValue_;
+      public boolean getBoolValue() {
+        return boolValue_;
+      }
+      public Value setBoolValue(boolean value) {
+        boolValue_ = value;
+        bitField0_ |= 0x00000040;
+        return this;
+      }
+      public boolean hasBoolValue() {
+        return ((bitField0_ & 0x00000040) != 0);
+      }
+      public Value clearBoolValue() {
+        boolValue_ = false;
+        bitField0_ = (bitField0_ & ~0x00000040);
+        return this;
+      }
 
       public Value() {
         clear();
       }
 
       public Value clear() {
-        stringValue = "";
-        floatValue = 0F;
-        doubleValue = 0D;
-        intValue = 0L;
-        uintValue = 0L;
-        sintValue = 0L;
-        boolValue = false;
+        bitField0_ = 0;
+        stringValue_ = "";
+        floatValue_ = 0F;
+        doubleValue_ = 0D;
+        intValue_ = 0L;
+        uintValue_ = 0L;
+        sintValue_ = 0L;
+        boolValue_ = false;
         unknownFieldData = null;
         cachedSize = -1;
         return this;
@@ -72,28 +190,26 @@ public interface VectorTile {
       @Override
       public void writeTo(com.google.protobuf.nano.CodedOutputByteBufferNano output)
           throws java.io.IOException {
-        if (!this.stringValue.equals("")) {
-          output.writeString(1, this.stringValue);
+        if (((bitField0_ & 0x00000001) != 0)) {
+          output.writeString(1, stringValue_);
         }
-        if (java.lang.Float.floatToIntBits(this.floatValue)
-            != java.lang.Float.floatToIntBits(0F)) {
-          output.writeFloat(2, this.floatValue);
+        if (((bitField0_ & 0x00000002) != 0)) {
+          output.writeFloat(2, floatValue_);
         }
-        if (java.lang.Double.doubleToLongBits(this.doubleValue)
-            != java.lang.Double.doubleToLongBits(0D)) {
-          output.writeDouble(3, this.doubleValue);
+        if (((bitField0_ & 0x00000004) != 0)) {
+          output.writeDouble(3, doubleValue_);
         }
-        if (this.intValue != 0L) {
-          output.writeInt64(4, this.intValue);
+        if (((bitField0_ & 0x00000008) != 0)) {
+          output.writeInt64(4, intValue_);
         }
-        if (this.uintValue != 0L) {
-          output.writeUInt64(5, this.uintValue);
+        if (((bitField0_ & 0x00000010) != 0)) {
+          output.writeUInt64(5, uintValue_);
         }
-        if (this.sintValue != 0L) {
-          output.writeSInt64(6, this.sintValue);
+        if (((bitField0_ & 0x00000020) != 0)) {
+          output.writeSInt64(6, sintValue_);
         }
-        if (this.boolValue != false) {
-          output.writeBool(7, this.boolValue);
+        if (((bitField0_ & 0x00000040) != 0)) {
+          output.writeBool(7, boolValue_);
         }
         super.writeTo(output);
       }
@@ -101,35 +217,33 @@ public interface VectorTile {
       @Override
       protected int computeSerializedSize() {
         int size = super.computeSerializedSize();
-        if (!this.stringValue.equals("")) {
+        if (((bitField0_ & 0x00000001) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeStringSize(1, this.stringValue);
+              .computeStringSize(1, stringValue_);
         }
-        if (java.lang.Float.floatToIntBits(this.floatValue)
-            != java.lang.Float.floatToIntBits(0F)) {
+        if (((bitField0_ & 0x00000002) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeFloatSize(2, this.floatValue);
+              .computeFloatSize(2, floatValue_);
         }
-        if (java.lang.Double.doubleToLongBits(this.doubleValue)
-            != java.lang.Double.doubleToLongBits(0D)) {
+        if (((bitField0_ & 0x00000004) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeDoubleSize(3, this.doubleValue);
+              .computeDoubleSize(3, doubleValue_);
         }
-        if (this.intValue != 0L) {
+        if (((bitField0_ & 0x00000008) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeInt64Size(4, this.intValue);
+              .computeInt64Size(4, intValue_);
         }
-        if (this.uintValue != 0L) {
+        if (((bitField0_ & 0x00000010) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeUInt64Size(5, this.uintValue);
+              .computeUInt64Size(5, uintValue_);
         }
-        if (this.sintValue != 0L) {
+        if (((bitField0_ & 0x00000020) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeSInt64Size(6, this.sintValue);
+              .computeSInt64Size(6, sintValue_);
         }
-        if (this.boolValue != false) {
+        if (((bitField0_ & 0x00000040) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeBoolSize(7, this.boolValue);
+              .computeBoolSize(7, boolValue_);
         }
         return size;
       }
@@ -150,31 +264,38 @@ public interface VectorTile {
               break;
             }
             case 10: {
-              this.stringValue = input.readString();
+              stringValue_ = input.readString();
+              bitField0_ |= 0x00000001;
               break;
             }
             case 21: {
-              this.floatValue = input.readFloat();
+              floatValue_ = input.readFloat();
+              bitField0_ |= 0x00000002;
               break;
             }
             case 25: {
-              this.doubleValue = input.readDouble();
+              doubleValue_ = input.readDouble();
+              bitField0_ |= 0x00000004;
               break;
             }
             case 32: {
-              this.intValue = input.readInt64();
+              intValue_ = input.readInt64();
+              bitField0_ |= 0x00000008;
               break;
             }
             case 40: {
-              this.uintValue = input.readUInt64();
+              uintValue_ = input.readUInt64();
+              bitField0_ |= 0x00000010;
               break;
             }
             case 48: {
-              this.sintValue = input.readSInt64();
+              sintValue_ = input.readSInt64();
+              bitField0_ |= 0x00000020;
               break;
             }
             case 56: {
-              this.boolValue = input.readBool();
+              boolValue_ = input.readBool();
+              bitField0_ |= 0x00000040;
               break;
             }
           }
@@ -210,14 +331,48 @@ public interface VectorTile {
         return _emptyArray;
       }
 
+      private int bitField0_;
+
       // optional uint64 id = 1 [default = 0];
-      public long id;
+      private long id_;
+      public long getId() {
+        return id_;
+      }
+      public Feature setId(long value) {
+        id_ = value;
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000001) != 0);
+      }
+      public Feature clearId() {
+        id_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
 
       // repeated uint32 tags = 2 [packed = true];
       public int[] tags;
 
       // optional .vector_tile.Tile.GeomType type = 3 [default = UNKNOWN];
-      public int type;
+      private int type_;
+      public int getType() {
+        return type_;
+      }
+      public Feature setType(int value) {
+        type_ = value;
+        bitField0_ |= 0x00000002;
+        return this;
+      }
+      public boolean hasType() {
+        return ((bitField0_ & 0x00000002) != 0);
+      }
+      public Feature clearType() {
+        type_ = vector_tile.VectorTile.Tile.UNKNOWN;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
 
       // repeated uint32 geometry = 4 [packed = true];
       public int[] geometry;
@@ -227,9 +382,10 @@ public interface VectorTile {
       }
 
       public Feature clear() {
-        id = 0L;
+        bitField0_ = 0;
+        id_ = 0L;
         tags = com.google.protobuf.nano.WireFormatNano.EMPTY_INT_ARRAY;
-        type = vector_tile.VectorTile.Tile.UNKNOWN;
+        type_ = vector_tile.VectorTile.Tile.UNKNOWN;
         geometry = com.google.protobuf.nano.WireFormatNano.EMPTY_INT_ARRAY;
         unknownFieldData = null;
         cachedSize = -1;
@@ -239,8 +395,8 @@ public interface VectorTile {
       @Override
       public void writeTo(com.google.protobuf.nano.CodedOutputByteBufferNano output)
           throws java.io.IOException {
-        if (this.id != 0L) {
-          output.writeUInt64(1, this.id);
+        if (((bitField0_ & 0x00000001) != 0)) {
+          output.writeUInt64(1, id_);
         }
         if (this.tags != null && this.tags.length > 0) {
           int dataSize = 0;
@@ -255,8 +411,8 @@ public interface VectorTile {
             output.writeUInt32NoTag(this.tags[i]);
           }
         }
-        if (this.type != vector_tile.VectorTile.Tile.UNKNOWN) {
-          output.writeInt32(3, this.type);
+        if (((bitField0_ & 0x00000002) != 0)) {
+          output.writeInt32(3, type_);
         }
         if (this.geometry != null && this.geometry.length > 0) {
           int dataSize = 0;
@@ -277,9 +433,9 @@ public interface VectorTile {
       @Override
       protected int computeSerializedSize() {
         int size = super.computeSerializedSize();
-        if (this.id != 0L) {
+        if (((bitField0_ & 0x00000001) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeUInt64Size(1, this.id);
+              .computeUInt64Size(1, id_);
         }
         if (this.tags != null && this.tags.length > 0) {
           int dataSize = 0;
@@ -293,9 +449,9 @@ public interface VectorTile {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
               .computeRawVarint32Size(dataSize);
         }
-        if (this.type != vector_tile.VectorTile.Tile.UNKNOWN) {
+        if (((bitField0_ & 0x00000002) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-            .computeInt32Size(3, this.type);
+            .computeInt32Size(3, type_);
         }
         if (this.geometry != null && this.geometry.length > 0) {
           int dataSize = 0;
@@ -328,7 +484,8 @@ public interface VectorTile {
               break;
             }
             case 8: {
-              this.id = input.readUInt64();
+              id_ = input.readUInt64();
+              bitField0_ |= 0x00000001;
               break;
             }
             case 16: {
@@ -378,7 +535,8 @@ public interface VectorTile {
                 case vector_tile.VectorTile.Tile.POINT:
                 case vector_tile.VectorTile.Tile.LINESTRING:
                 case vector_tile.VectorTile.Tile.POLYGON:
-                  this.type = value;
+                  type_ = value;
+                  bitField0_ |= 0x00000002;
                   break;
               }
               break;
@@ -456,6 +614,8 @@ public interface VectorTile {
         return _emptyArray;
       }
 
+      private int bitField0_;
+
       // required uint32 version = 15 [default = 1];
       public int version;
 
@@ -472,19 +632,36 @@ public interface VectorTile {
       public vector_tile.VectorTile.Tile.Value[] values;
 
       // optional uint32 extent = 5 [default = 4096];
-      public int extent;
+      private int extent_;
+      public int getExtent() {
+        return extent_;
+      }
+      public Layer setExtent(int value) {
+        extent_ = value;
+        bitField0_ |= 0x00000001;
+        return this;
+      }
+      public boolean hasExtent() {
+        return ((bitField0_ & 0x00000001) != 0);
+      }
+      public Layer clearExtent() {
+        extent_ = 4096;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        return this;
+      }
 
       public Layer() {
         clear();
       }
 
       public Layer clear() {
+        bitField0_ = 0;
         version = 1;
         name = "";
         features = vector_tile.VectorTile.Tile.Feature.emptyArray();
         keys = com.google.protobuf.nano.WireFormatNano.EMPTY_STRING_ARRAY;
         values = vector_tile.VectorTile.Tile.Value.emptyArray();
-        extent = 4096;
+        extent_ = 4096;
         unknownFieldData = null;
         cachedSize = -1;
         return this;
@@ -518,8 +695,8 @@ public interface VectorTile {
             }
           }
         }
-        if (this.extent != 4096) {
-          output.writeUInt32(5, this.extent);
+        if (((bitField0_ & 0x00000001) != 0)) {
+          output.writeUInt32(5, extent_);
         }
         output.writeUInt32(15, this.version);
         super.writeTo(output);
@@ -562,9 +739,9 @@ public interface VectorTile {
             }
           }
         }
-        if (this.extent != 4096) {
+        if (((bitField0_ & 0x00000001) != 0)) {
           size += com.google.protobuf.nano.CodedOutputByteBufferNano
-              .computeUInt32Size(5, this.extent);
+              .computeUInt32Size(5, extent_);
         }
         size += com.google.protobuf.nano.CodedOutputByteBufferNano
             .computeUInt32Size(15, this.version);
@@ -648,7 +825,8 @@ public interface VectorTile {
               break;
             }
             case 40: {
-              this.extent = input.readUInt32();
+              extent_ = input.readUInt32();
+              bitField0_ |= 0x00000001;
               break;
             }
             case 120: {
