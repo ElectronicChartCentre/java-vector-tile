@@ -4,7 +4,7 @@
   <groupId>no.ecc.vectortile</groupId>
   <artifactId>java-vector-tile</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.7-SNAPSHOT</version>
+  <version>1.0.8-SNAPSHOT</version>
   <name>java-vector-tile</name>
   <url>http://maven.apache.org</url>
   
