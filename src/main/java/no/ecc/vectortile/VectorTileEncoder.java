@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import vector_tile.VectorTile;
-import vector_tile.VectorTile.Tile.GeomType;
 
+import com.google.protobuf.nano.MessageNano;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -195,75 +195,90 @@ public class VectorTileEncoder {
      */
     public byte[] encode() {
 
-        VectorTile.Tile.Builder tileBuilder = VectorTile.Tile.newBuilder();
+        VectorTile.Tile tile = new VectorTile.Tile();
 
+        List<VectorTile.Tile.Layer> tileLayers = new ArrayList<VectorTile.Tile.Layer>();
         for (Map.Entry<String, Layer> e : layers.entrySet()) {
             String layerName = e.getKey();
             Layer layer = e.getValue();
 
-            VectorTile.Tile.Layer.Builder layerBuilder = VectorTile.Tile.Layer.newBuilder();
-            layerBuilder.setVersion(1);
-            layerBuilder.setName(layerName);
+            VectorTile.Tile.Layer tileLayer = new VectorTile.Tile.Layer();
+            tileLayer.version = 1;
+            tileLayer.name = layerName;
 
-            layerBuilder.addAllKeys(layer.keys());
+            tileLayer.keys = layer.keys();
 
+            List<VectorTile.Tile.Value> values = new ArrayList<VectorTile.Tile.Value>();
             for (Object value : layer.values()) {
-                VectorTile.Tile.Value.Builder valueBuilder = VectorTile.Tile.Value.newBuilder();
+                VectorTile.Tile.Value tileValue = new VectorTile.Tile.Value();
                 if (value instanceof String) {
-                    valueBuilder.setStringValue((String) value);
+                    tileValue.setStringValue((String) value);
                 } else if (value instanceof Integer) {
-                    valueBuilder.setSintValue(((Integer) value).intValue());
+                    tileValue.setSintValue(((Integer) value).intValue());
                 } else if (value instanceof Long) {
-                    valueBuilder.setSintValue(((Long) value).longValue());
+                    tileValue.setSintValue(((Long) value).longValue());
                 } else if (value instanceof Float) {
-                    valueBuilder.setFloatValue(((Float) value).floatValue());
+                    tileValue.setFloatValue(((Float) value).floatValue());
                 } else if (value instanceof Double) {
-                    valueBuilder.setDoubleValue(((Double) value).doubleValue());
+                    tileValue.setDoubleValue(((Double) value).doubleValue());
                 } else {
-                    valueBuilder.setStringValue(value.toString());
+                    tileValue.setStringValue(value.toString());
                 }
-                layerBuilder.addValues(valueBuilder.build());
+                values.add(tileValue);
             }
+            tileLayer.values = values.toArray(new VectorTile.Tile.Value[values.size()]);
 
-            layerBuilder.setExtent(extent);
+            tileLayer.setExtent(extent);
 
+            List<VectorTile.Tile.Feature> features = new ArrayList<VectorTile.Tile.Feature>();
             for (Feature feature : layer.features) {
 
                 Geometry geometry = feature.geometry;
 
-                VectorTile.Tile.Feature.Builder featureBuilder = VectorTile.Tile.Feature.newBuilder();
+                VectorTile.Tile.Feature featureBuilder = new VectorTile.Tile.Feature();
 
-                featureBuilder.addAllTags(feature.tags);
+                featureBuilder.tags = toIntArray(feature.tags);
                 featureBuilder.setType(toGeomType(geometry));
-                featureBuilder.addAllGeometry(commands(geometry));
+                featureBuilder.geometry = toIntArray(commands(geometry));
 
-                layerBuilder.addFeatures(featureBuilder.build());
+                features.add(featureBuilder);
             }
 
-            tileBuilder.addLayers(layerBuilder.build());
+            tileLayer.features = features.toArray(new VectorTile.Tile.Feature[features.size()]);
+            tileLayers.add(tileLayer);
 
         }
+        
+        tile.layers = tileLayers.toArray(new VectorTile.Tile.Layer[tileLayers.size()]);
 
-        return tileBuilder.build().toByteArray();
+        return MessageNano.toByteArray(tile);
+    }
+    
+    static int[] toIntArray(List<Integer> ints) {
+        int[] r = new int[ints.size()];
+        for (int i = 0; i < ints.size(); i++) {
+            r[i] = ints.get(i).intValue();
+        }
+        return r;
     }
 
-    static GeomType toGeomType(Geometry geometry) {
+    static int toGeomType(Geometry geometry) {
         if (geometry instanceof com.vividsolutions.jts.geom.Point) {
-            return GeomType.POINT;
+            return VectorTile.Tile.POINT;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.MultiPoint) {
-            return GeomType.POINT;
+            return VectorTile.Tile.POINT;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.LineString) {
-            return GeomType.LINESTRING;
+            return VectorTile.Tile.LINESTRING;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.MultiLineString) {
-            return GeomType.LINESTRING;
+            return VectorTile.Tile.LINESTRING;
         }
         if (geometry instanceof com.vividsolutions.jts.geom.Polygon) {
-            return GeomType.POLYGON;
+            return VectorTile.Tile.POLYGON;
         }
-        return GeomType.UNKNOWN;
+        return VectorTile.Tile.UNKNOWN;
     }
 
     static boolean shouldClosePath(Geometry geometry) {
@@ -410,8 +425,9 @@ public class VectorTileEncoder {
             return i;
         }
 
-        public List<String> keys() {
-            return Collections.unmodifiableList(new ArrayList<String>(keys.keySet()));
+        public String[] keys() {
+            List<String> r = new ArrayList<String>(keys.keySet());
+            return r.toArray(new String[r.size()]);
         }
 
         public Integer value(Object value) {

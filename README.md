@@ -32,6 +32,12 @@ byte[] encoded = encoder.encode();
 </dependency>
 ```
 
+## Generate VectorTile.java
+
+```
+protoc --javanano_out=store_unknown_fields=true,optional_field_style=accessors:src/main/java/ src/main/resources/vector_tile.proto
+```
+
 ## License
 
 [Apache License, version 2.0](http://www.apache.org/licenses/LICENSE-2.0)

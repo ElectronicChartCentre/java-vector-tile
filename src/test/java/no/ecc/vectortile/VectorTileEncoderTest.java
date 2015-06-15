@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import vector_tile.VectorTile.Tile.GeomType;
+import vector_tile.VectorTile;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -63,7 +63,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(8, 12));
         cs.add(new Coordinate(20, 34));
         Geometry geometry = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
-        assertEquals(GeomType.LINESTRING, VectorTileEncoder.toGeomType(geometry));
+        assertEquals(VectorTile.Tile.LINESTRING, VectorTileEncoder.toGeomType(geometry));
     }
 
     public void testCommands() {
@@ -181,9 +181,8 @@ public class VectorTileEncoderTest extends TestCase {
         assertNotSame(0, encoded.length);
 
         VectorTileDecoder decoder = new VectorTileDecoder();
-        decoder.decode(encoded);
-        assertEquals(1, decoder.getFeatures("DEPCNT").size());
-        Map<String, Object> decodedAttributes = decoder.getFeatures("DEPCNT").get(0).getAttributes();
+        assertEquals(1, decoder.decode(encoded, "DEPCNT").asList().size());
+        Map<String, Object> decodedAttributes = decoder.decode(encoded, "DEPCNT").asList().get(0).getAttributes();
         assertEquals("value1", decodedAttributes.get("key1"));
         assertEquals("value3", decodedAttributes.get("key3"));
         assertFalse(decodedAttributes.containsKey("key2"));
@@ -208,9 +207,8 @@ public class VectorTileEncoderTest extends TestCase {
         assertNotSame(0, encoded.length);
 
         VectorTileDecoder decoder = new VectorTileDecoder();
-        decoder.decode(encoded);
-        assertEquals(1, decoder.getFeatures("DEPCNT").size());
-        Map<String, Object> decodedAttributes = decoder.getFeatures("DEPCNT").get(0).getAttributes();
+        assertEquals(1, decoder.decode(encoded, "DEPCNT").asList().size());
+        Map<String, Object> decodedAttributes = decoder.decode(encoded, "DEPCNT").asList().get(0).getAttributes();
         assertEquals("value1", decodedAttributes.get("key1"));
         assertEquals(Long.valueOf(123), decodedAttributes.get("key2"));
         assertEquals(Float.valueOf(234.1f), decodedAttributes.get("key3"));
