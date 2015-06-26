@@ -129,6 +129,34 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(3, commands.size());
 
     }
+    
+    public void testExtentWithScale() {
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        
+        List<Integer> commands = new VectorTileEncoder(512).commands(cs.toArray(new Coordinate[cs.size()]), false);
+        assertNotNull(commands);
+
+        assertCommand(9, commands, 0);
+        assertCommand(12, commands, 1);
+        assertCommand(24, commands, 2);
+        assertEquals(3, commands.size());
+    }
+    
+    public void testExtentWithoutScale() {
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(6, 300));
+        
+        List<Integer> commands = new VectorTileEncoder(512, 8, false).commands(cs.toArray(new Coordinate[cs.size()]), false);
+        assertNotNull(commands);
+
+        assertCommand(9, commands, 0);
+        assertCommand(12, commands, 1);
+        assertCommand(600, commands, 2);
+        assertEquals(3, commands.size());
+    }
 
     public void testFourEqualPoints() {
 

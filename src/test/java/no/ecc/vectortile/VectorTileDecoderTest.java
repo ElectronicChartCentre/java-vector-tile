@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,6 +47,23 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(-1, VectorTileDecoder.zigZagDecode(1));
         assertEquals(1, VectorTileDecoder.zigZagDecode(2));
         assertEquals(-2, VectorTileDecoder.zigZagDecode(3));
+    }
+    
+    public void testWithoutScaling() throws IOException {
+        Coordinate c = new Coordinate(2, 3);
+        Geometry geometry = gf.createPoint(c);
+        
+        Coordinate c2 = new Coordinate(4, 6);
+        Geometry geometry2 = gf.createPoint(c2);
+        
+        VectorTileEncoder e = new VectorTileEncoder(512);
+        e.addFeature("layer", Collections.EMPTY_MAP, geometry);
+        byte[] encoded = e.encode();
+
+        VectorTileDecoder d = new VectorTileDecoder();
+        d.setAutoScale(false);
+
+        assertEquals(geometry2, d.decode(encoded, "layer").iterator().next().getGeometry());
     }
 
     public void testPoint() throws IOException {

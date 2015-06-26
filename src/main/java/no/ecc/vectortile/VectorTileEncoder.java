@@ -51,13 +51,15 @@ public class VectorTileEncoder {
     private final Geometry clipGeometry;
 
     private final Geometry polygonClipGeometry;
+    
+    private final boolean autoScale;
 
     /**
      * Create a {@link VectorTileEncoder} with the default extent of 4096 and
      * clip buffer of 8.
      */
     public VectorTileEncoder() {
-        this(4096, 8);
+        this(4096, 8, true);
     }
 
     /**
@@ -65,7 +67,7 @@ public class VectorTileEncoder {
      * clip buffer of 8.
      */
     public VectorTileEncoder(int extent) {
-        this(extent, 8);
+        this(extent, 8, true);
     }
 
     /**
@@ -82,23 +84,31 @@ public class VectorTileEncoder {
      *            a int with extent value. 4096 is a good value.
      * @param polygonClipBuffer
      *            a int with clip buffer size for polygons. 8 is a good value.
+     * @param autoScale
+     *            when true, the encoder expects coordinates in the 0..255 range and will scale
+     *             them automatically to the 0..extent-1 range before encoding.
+     *            when false, the encoder expects coordinates in the 0..extent-1 range. 
+     *            
      */
-    public VectorTileEncoder(int extent, int polygonClipBuffer) {
+    public VectorTileEncoder(int extent, int polygonClipBuffer, boolean autoScale) {
         this.extent = extent;
+        this.autoScale = autoScale;
 
-        clipGeometry = createTileEnvelope(0);
-        polygonClipGeometry = createTileEnvelope(polygonClipBuffer);
+        final int size = autoScale ? 256 : extent;
+        clipGeometry = createTileEnvelope(0, size);
+        polygonClipGeometry = createTileEnvelope(polygonClipBuffer, size);
     }
 
-    private static Geometry createTileEnvelope(int buffer) {
+    private static Geometry createTileEnvelope(int buffer, int size) {        
         Coordinate[] coords = new Coordinate[5];
-        coords[0] = new Coordinate(0 - buffer, 256 + buffer);
-        coords[1] = new Coordinate(256 + buffer, 256 + buffer);
-        coords[2] = new Coordinate(256 + buffer, 0 - buffer);
+        coords[0] = new Coordinate(0 - buffer, size + buffer);
+        coords[1] = new Coordinate(size + buffer, size + buffer);
+        coords[2] = new Coordinate(size + buffer, 0 - buffer);
         coords[3] = new Coordinate(0 - buffer, 0 - buffer);
         coords[4] = coords[0];
         return new GeometryFactory().createPolygon(coords);
     }
+    
 
     /**
      * Add a feature with layer name (typically feature type name), some
@@ -342,7 +352,7 @@ public class VectorTileEncoder {
         int lineToIndex = 0;
         int lineToLength = 0;
 
-        double scale = extent / 256.0;
+        double scale = autoScale ? (extent / 256.0) : 1.0;
 
         for (int i = 0; i < cs.length; i++) {
             Coordinate c = cs[i];
