@@ -331,6 +331,10 @@ public class VectorTileDecoder {
             return new Feature(layerName, extent, geometry, Collections.unmodifiableMap(attributes));
         }
 
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }        
+
     }
 
     public static final class Feature {
