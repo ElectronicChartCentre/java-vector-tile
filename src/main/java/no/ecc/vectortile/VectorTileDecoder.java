@@ -41,6 +41,29 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 
 public class VectorTileDecoder {
+    
+    private boolean autoScale = true;
+    
+    /**
+     * Get the autoScale setting.
+     * 
+     * @return autoScale
+     */
+    public boolean isAutoScale() {
+            return autoScale;
+    }
+
+    /**
+     * Set the autoScale setting.
+     * 
+     * @param autoScale
+     *            when true, the encoder automatically scale and return all coordinates in the 0..255 range.
+     *            when false, the encoder returns all coordinates in the 0..extent-1 range as they are encoded. 
+     * 
+     */
+    public void setAutoScale(boolean autoScale) {
+        this.autoScale = autoScale;
+    }
 
     public FeatureIterable decode(byte[] data) throws IOException {
         return decode(data, Filter.ALL);
@@ -52,7 +75,7 @@ public class VectorTileDecoder {
 
     private FeatureIterable decode(byte[] data, Filter filter) throws IOException {
         VectorTile.Tile tile = VectorTile.Tile.parseFrom(data);
-        return new FeatureIterable(tile, filter);
+        return new FeatureIterable(tile, filter, autoScale);
     }
 
     static int zigZagDecode(int n) {
@@ -63,14 +86,16 @@ public class VectorTileDecoder {
 
         private final VectorTile.Tile tile;
         private final Filter filter;
+        private boolean autoScale;
 
-        public FeatureIterable(VectorTile.Tile tile, Filter filter) {
+        public FeatureIterable(VectorTile.Tile tile, Filter filter, boolean autoScale) {
             this.tile = tile;
             this.filter = filter;
+            this.autoScale = autoScale;
         }
 
         public Iterator<Feature> iterator() {
-            return new FeatureIterator(tile, filter);
+            return new FeatureIterator(tile, filter, autoScale);
         }
 
         public List<Feature> asList() {
@@ -104,15 +129,17 @@ public class VectorTileDecoder {
         private int extent;
         private String layerName;
         private double scale;
+        private boolean autoScale;
 
         private final List<String> keys = new ArrayList<String>();
         private final List<Object> values = new ArrayList<Object>();
 
         private Feature next;
 
-        public FeatureIterator(VectorTile.Tile tile, Filter filter) {
+        public FeatureIterator(VectorTile.Tile tile, Filter filter, boolean autoScale) {
             layerIterator = Arrays.asList(tile.layers).iterator();
             this.filter = filter;
+            this.autoScale = autoScale;
         }
 
         public boolean hasNext() {
@@ -164,7 +191,7 @@ public class VectorTileDecoder {
 
             layerName = layer.name;
             extent = layer.getExtent();
-            scale = extent / 256.0;
+            scale = autoScale ? extent / 256.0 : 1.0;
 
             keys.clear();
             keys.addAll(Arrays.asList(layer.keys));
