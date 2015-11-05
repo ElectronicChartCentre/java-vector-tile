@@ -123,7 +123,6 @@ public class VectorTileEncoder {
      * @param geometry
      */
     public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry) {
-
         // split up MultiPolygon and GeometryCollection (without subclasses)
         if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
             splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
@@ -162,7 +161,7 @@ public class VectorTileEncoder {
         }
 
         // if clipping result in MultiPolygon, then split once more
-        if (geometry instanceof MultiPolygon) {
+        if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
             splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
             return;
         }
