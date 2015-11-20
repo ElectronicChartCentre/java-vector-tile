@@ -2,7 +2,6 @@
 
 package vector_tile;
 
-@SuppressWarnings("hiding")
 public interface VectorTile {
 
   public static final class Tile extends

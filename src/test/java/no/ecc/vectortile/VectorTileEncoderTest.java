@@ -24,20 +24,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import vector_tile.VectorTile;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+
+import junit.framework.TestCase;
+import vector_tile.VectorTile;
 
 public class VectorTileEncoderTest extends TestCase {
 
     private GeometryFactory gf = new GeometryFactory();
 
-    public void testEncode() {
-        VectorTileEncoder vtm = new VectorTileEncoder(256);
-
+    private void testBasicEncode(final VectorTileEncoder vtm) {
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(3, 6));
         cs.add(new Coordinate(8, 12));
@@ -54,7 +52,14 @@ public class VectorTileEncoderTest extends TestCase {
 
         byte[] encoded = vtm.encode();
         assertNotSame(0, encoded.length);
+    }
 
+    public void testEncode() {
+        testBasicEncode(new VectorTileEncoder(256));
+    }
+
+    public void testEncoderWithBuilder() {
+        testBasicEncode(new VectorTileEncoderBuilder().withExtent(256).build());
     }
 
     public void testToGeomType() {
@@ -119,7 +124,7 @@ public class VectorTileEncoderTest extends TestCase {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(3, 6));
-        
+
         List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false);
         assertNotNull(commands);
 
@@ -129,12 +134,12 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(3, commands.size());
 
     }
-    
+
     public void testExtentWithScale() {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(3, 6));
-        
+
         List<Integer> commands = new VectorTileEncoder(512).commands(cs.toArray(new Coordinate[cs.size()]), false);
         assertNotNull(commands);
 
@@ -143,12 +148,12 @@ public class VectorTileEncoderTest extends TestCase {
         assertCommand(24, commands, 2);
         assertEquals(3, commands.size());
     }
-    
+
     public void testExtentWithoutScale() {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(6, 300));
-        
+
         List<Integer> commands = new VectorTileEncoder(512, 8, false).commands(cs.toArray(new Coordinate[cs.size()]), false);
         assertNotNull(commands);
 
