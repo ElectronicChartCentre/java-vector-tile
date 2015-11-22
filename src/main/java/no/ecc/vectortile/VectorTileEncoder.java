@@ -137,28 +137,8 @@ public class VectorTileEncoder {
             return;
         }
 
-        // clip geometry. polygons right outside. other geometries at tile
-        // border.
-        try {
-            if (geometry instanceof Polygon) {
-                Geometry original = geometry;
-                geometry = polygonClipGeometry.intersection(original);
-
-                // some times a intersection is returned as an empty geometry.
-                // going via wkt fixes the problem.
-                if (geometry.isEmpty() && original.intersects(polygonClipGeometry)) {
-                    Geometry originalViaWkt = new WKTReader().read(original.toText());
-                    geometry = polygonClipGeometry.intersection(originalViaWkt);
-                }
-                
-            } else {
-                geometry = clipGeometry.intersection(geometry);
-            }
-        } catch (TopologyException e) {
-            // could not intersect. original geometry will be used instead.
-        } catch (ParseException e1) {
-            // could not encode/decode WKT. original geometry will be used instead.
-        }
+        // clip geometry
+        geometry = clipGeometry(geometry);
 
         // if clipping result in MultiPolygon, then split once more
         if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
@@ -190,6 +170,39 @@ public class VectorTileEncoder {
         }
 
         layer.features.add(feature);
+    }
+    
+	/**
+	 * Clip geometry. polygons right outside. other geometries at tile border.
+	 * This method can be overridden to change clipping behavior.
+	 * 
+	 * @param geometry
+	 * @return
+	 */
+    protected Geometry clipGeometry(Geometry geometry) {
+        try {
+            if (geometry instanceof Polygon) {
+                Geometry original = geometry;
+                geometry = polygonClipGeometry.intersection(original);
+
+                // some times a intersection is returned as an empty geometry.
+                // going via wkt fixes the problem.
+                if (geometry.isEmpty() && original.intersects(polygonClipGeometry)) {
+                    Geometry originalViaWkt = new WKTReader().read(original.toText());
+                    geometry = polygonClipGeometry.intersection(originalViaWkt);
+                }
+                
+            } else {
+                geometry = clipGeometry.intersection(geometry);
+            }
+            return geometry;
+        } catch (TopologyException e) {
+            // could not intersect. original geometry will be used instead.
+            return geometry;
+        } catch (ParseException e1) {
+            // could not encode/decode WKT. original geometry will be used instead.
+            return geometry;
+        }
     }
 
     private void splitAndAddFeatures(String layerName, Map<String, ?> attributes, GeometryCollection geometry) {
