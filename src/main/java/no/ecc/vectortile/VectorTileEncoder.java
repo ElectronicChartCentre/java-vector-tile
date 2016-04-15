@@ -20,7 +20,6 @@ package no.ecc.vectortile;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,7 @@ import com.vividsolutions.jts.io.WKTReader;
 
 public class VectorTileEncoder {
 
-    private final Map<String, Layer> layers = new HashMap<String, Layer>();
+    private final Map<String, Layer> layers = new LinkedHashMap<String, Layer>();
 
     private final int extent;
 
