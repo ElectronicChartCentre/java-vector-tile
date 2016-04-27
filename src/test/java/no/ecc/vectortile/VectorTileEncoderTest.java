@@ -27,9 +27,11 @@ import java.util.Map;
 import junit.framework.TestCase;
 import vector_tile.VectorTile;
 
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class VectorTileEncoderTest extends TestCase {
 
@@ -130,6 +132,82 @@ public class VectorTileEncoderTest extends TestCase {
 
     }
     
+    public void testMultiPoint() {
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(5, 7));
+        cs.add(new Coordinate(3, 2));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false, true);
+        assertNotNull(commands);
+
+        assertCommand(17, commands, 0);
+        assertCommand(10, commands, 1);
+        assertCommand(14, commands, 2);
+        assertCommand(3, commands, 3);
+        assertCommand(9, commands, 4);
+        assertEquals(5, commands.size());
+
+    }
+
+    public void testCCWPolygon() {
+
+        // Exterior ring in counter-clockwise order.
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+        cs.add(new Coordinate(3, 6));
+
+        Coordinate[] coordinates = cs.toArray(new Coordinate[cs.size()]);
+        assertTrue(CGAlgorithms.isCCW(coordinates));
+
+        Polygon polygon = gf.createPolygon(coordinates);
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(polygon);
+        assertNotNull(commands);
+
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertCommand(18, commands, 3);
+        assertCommand(10, commands, 4);
+        assertCommand(12, commands, 5);
+        assertCommand(24, commands, 6);
+        assertCommand(44, commands, 7);
+        assertCommand(15, commands, 8);
+        assertEquals(9, commands.size());
+    }
+
+    public void testCWPolygon() {
+
+        // Exterior ring in clockwise order.
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(20, 34));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(3, 6));
+
+        Coordinate[] coordinates = cs.toArray(new Coordinate[cs.size()]);
+        assertFalse(CGAlgorithms.isCCW(coordinates));
+
+        Polygon polygon = gf.createPolygon(coordinates);
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(polygon);
+        assertNotNull(commands);
+
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertCommand(18, commands, 3);
+        assertCommand(10, commands, 4);
+        assertCommand(12, commands, 5);
+        assertCommand(24, commands, 6);
+        assertCommand(44, commands, 7);
+        assertCommand(15, commands, 8);
+        assertEquals(9, commands.size());
+    }
+
     public void testExtentWithScale() {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();

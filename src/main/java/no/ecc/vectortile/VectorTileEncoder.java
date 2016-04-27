@@ -27,6 +27,7 @@ import java.util.Map;
 import vector_tile.VectorTile;
 
 import com.google.protobuf.nano.MessageNano;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -313,17 +314,33 @@ public class VectorTileEncoder {
 
         if (geometry instanceof Polygon) {
             Polygon polygon = (Polygon) geometry;
-            if (polygon.getNumInteriorRing() > 0) {
-                List<Integer> commands = new ArrayList<Integer>();
-                commands.addAll(commands(polygon.getExteriorRing().getCoordinates(), true));
-                for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
-                    commands.addAll(commands(polygon.getInteriorRingN(i).getCoordinates(), true));
-                }
-                return commands;
+            List<Integer> commands = new ArrayList<Integer>();
+
+            // According to the vector tile specification, the exterior ring of a polygon
+            // must be in clockwise order, while the interior ring in counter-clockwise order.
+            // In the tile coordinate system, Y axis is positive down.
+            //
+            // However, in geographic coordinate system, Y axis is positive up.
+            // Therefore, we must reverse the coordinates.
+            // So, the code below will make sure that exterior ring is in counter-clockwise order
+            // and interior ring in clockwise order.
+            LineString exteriorRing = polygon.getExteriorRing();
+            if (!CGAlgorithms.isCCW(exteriorRing.getCoordinates())) {
+                exteriorRing = (LineString) exteriorRing.reverse();
             }
+            commands.addAll(commands(exteriorRing.getCoordinates(), true));
+
+            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                LineString interiorRing = polygon.getInteriorRingN(i);
+                if (CGAlgorithms.isCCW(interiorRing.getCoordinates())) {
+                    interiorRing = (LineString) interiorRing.reverse();
+                }
+                commands.addAll(commands(interiorRing.getCoordinates(), true));
+            }
+            return commands;
         }
 
-        if (geometry instanceof MultiLineString || geometry instanceof MultiPoint) {
+        if (geometry instanceof MultiLineString) {
             List<Integer> commands = new ArrayList<Integer>();
             GeometryCollection gc = (GeometryCollection) geometry;
             for (int i = 0; i < gc.getNumGeometries(); i++) {
@@ -332,7 +349,7 @@ public class VectorTileEncoder {
             return commands;
         }
 
-        return commands(geometry.getCoordinates(), shouldClosePath(geometry));
+        return commands(geometry.getCoordinates(), shouldClosePath(geometry), geometry instanceof MultiPoint);
     }
 
     private int x = 0;
@@ -353,6 +370,10 @@ public class VectorTileEncoder {
      * @return
      */
     List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd) {
+        return commands(cs, closePathAtEnd, false);
+    }
+
+    List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd, boolean multiPoint) {
 
         if (cs.length == 0) {
             throw new IllegalArgumentException("empty geometry");
@@ -369,7 +390,7 @@ public class VectorTileEncoder {
             Coordinate c = cs[i];
 
             if (i == 0) {
-                r.add(commandAndLength(Command.MoveTo, 1));
+                r.add(commandAndLength(Command.MoveTo, multiPoint ? cs.length : 1));
             }
 
             int _x = (int) Math.round(c.x * scale);
@@ -394,7 +415,7 @@ public class VectorTileEncoder {
             x = _x;
             y = _y;
 
-            if (i == 0 && cs.length > 1) {
+            if (i == 0 && cs.length > 1 && !multiPoint) {
                 // can length be too long?
                 lineToIndex = r.size();
                 lineToLength = cs.length - 1;
