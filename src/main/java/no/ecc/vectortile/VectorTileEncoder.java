@@ -323,7 +323,7 @@ public class VectorTileEncoder {
             }
         }
 
-        if (geometry instanceof MultiLineString || geometry instanceof MultiPoint) {
+        if (geometry instanceof MultiLineString) {
             List<Integer> commands = new ArrayList<Integer>();
             GeometryCollection gc = (GeometryCollection) geometry;
             for (int i = 0; i < gc.getNumGeometries(); i++) {
@@ -332,7 +332,7 @@ public class VectorTileEncoder {
             return commands;
         }
 
-        return commands(geometry.getCoordinates(), shouldClosePath(geometry));
+        return commands(geometry.getCoordinates(), shouldClosePath(geometry), geometry instanceof MultiPoint);
     }
 
     private int x = 0;
@@ -353,6 +353,10 @@ public class VectorTileEncoder {
      * @return
      */
     List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd) {
+        return commands(cs, closePathAtEnd, false);
+    }
+
+    List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd, boolean multiPoint) {
 
         if (cs.length == 0) {
             throw new IllegalArgumentException("empty geometry");
@@ -369,7 +373,7 @@ public class VectorTileEncoder {
             Coordinate c = cs[i];
 
             if (i == 0) {
-                r.add(commandAndLength(Command.MoveTo, 1));
+                r.add(commandAndLength(Command.MoveTo, multiPoint ? cs.length : 1));
             }
 
             int _x = (int) Math.round(c.x * scale);
@@ -394,7 +398,7 @@ public class VectorTileEncoder {
             x = _x;
             y = _y;
 
-            if (i == 0 && cs.length > 1) {
+            if (i == 0 && cs.length > 1 && !multiPoint) {
                 // can length be too long?
                 lineToIndex = r.size();
                 lineToLength = cs.length - 1;

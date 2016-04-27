@@ -130,6 +130,24 @@ public class VectorTileEncoderTest extends TestCase {
 
     }
     
+    public void testMultiPoint() {
+
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(5, 7));
+        cs.add(new Coordinate(3, 2));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false, true);
+        assertNotNull(commands);
+
+        assertCommand(17, commands, 0);
+        assertCommand(10, commands, 1);
+        assertCommand(14, commands, 2);
+        assertCommand(3, commands, 3);
+        assertCommand(9, commands, 4);
+        assertEquals(5, commands.size());
+
+    }
+
     public void testExtentWithScale() {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
