@@ -27,6 +27,7 @@ import java.util.Map;
 import vector_tile.VectorTile;
 
 import com.google.protobuf.nano.MessageNano;
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
@@ -313,14 +314,30 @@ public class VectorTileEncoder {
 
         if (geometry instanceof Polygon) {
             Polygon polygon = (Polygon) geometry;
-            if (polygon.getNumInteriorRing() > 0) {
-                List<Integer> commands = new ArrayList<Integer>();
-                commands.addAll(commands(polygon.getExteriorRing().getCoordinates(), true));
-                for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
-                    commands.addAll(commands(polygon.getInteriorRingN(i).getCoordinates(), true));
-                }
-                return commands;
+            List<Integer> commands = new ArrayList<Integer>();
+
+            // According to the vector tile specification, the exterior ring of a polygon
+            // must be in clockwise order, while the interior ring in counter-clockwise order.
+            // In the tile coordinate system, Y axis is positive down.
+            //
+            // However, in geographic coordinate system, Y axis is positive up.
+            // Therefore, we must reverse the coordinates.
+            // So, the code below will make sure that exterior ring is in counter-clockwise order
+            // and interior ring in clockwise order.
+            LineString exteriorRing = polygon.getExteriorRing();
+            if (!CGAlgorithms.isCCW(exteriorRing.getCoordinates())) {
+                exteriorRing = (LineString) exteriorRing.reverse();
             }
+            commands.addAll(commands(exteriorRing.getCoordinates(), true));
+
+            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+                LineString interiorRing = polygon.getInteriorRingN(i);
+                if (CGAlgorithms.isCCW(interiorRing.getCoordinates())) {
+                    interiorRing = (LineString) interiorRing.reverse();
+                }
+                commands.addAll(commands(interiorRing.getCoordinates(), true));
+            }
+            return commands;
         }
 
         if (geometry instanceof MultiLineString) {

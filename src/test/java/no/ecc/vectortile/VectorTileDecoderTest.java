@@ -158,8 +158,9 @@ public class VectorTileDecoderTest extends TestCase {
     }
 
     public void testPolygon() throws IOException {
-        LinearRing shell = gf.createLinearRing(new Coordinate[] { new Coordinate(10, 10), new Coordinate(10, 20),
-                new Coordinate(20, 20), new Coordinate(20, 10), new Coordinate(10, 10) });
+        // Exterior ring in counter-clockwise order.
+        LinearRing shell = gf.createLinearRing(new Coordinate[] { new Coordinate(10, 10), new Coordinate(20, 10),
+                new Coordinate(20, 20), new Coordinate(10, 20), new Coordinate(10, 10) });
         assertTrue(shell.isClosed());
         assertTrue(shell.isValid());
 
@@ -184,16 +185,18 @@ public class VectorTileDecoderTest extends TestCase {
     }
 
     public void testPolygonWithHole() throws IOException {
-        LinearRing shell = gf.createLinearRing(new Coordinate[] { new Coordinate(10, 10), new Coordinate(10, 20),
-                new Coordinate(20, 20), new Coordinate(20, 10), new Coordinate(10, 10) });
+        // Exterior ring in counter-clockwise order.
+        LinearRing shell = gf.createLinearRing(new Coordinate[] { new Coordinate(10, 10), new Coordinate(20, 10),
+                new Coordinate(20, 20), new Coordinate(10, 20), new Coordinate(10, 10) });
         assertTrue(shell.isClosed());
         assertTrue(shell.isValid());
 
         Geometry geometry = gf.createPolygon(shell, new LinearRing[] {});
         assertTrue(geometry.isValid());
 
-        LinearRing hole = gf.createLinearRing(new Coordinate[] { new Coordinate(11, 11), new Coordinate(19, 11),
-                new Coordinate(19, 19), new Coordinate(11, 19), new Coordinate(11, 11) });
+        // Interior ring in clockwise order.
+        LinearRing hole = gf.createLinearRing(new Coordinate[] { new Coordinate(11, 11), new Coordinate(11, 19),
+                new Coordinate(19, 19), new Coordinate(19, 11), new Coordinate(11, 11) });
         assertTrue(hole.isClosed());
         assertTrue(hole.isValid());
 
