@@ -49,8 +49,6 @@ public class VectorTileEncoder {
     private final int extent;
 
     private final Geometry clipGeometry;
-
-    private final Geometry polygonClipGeometry;
     
     private final boolean autoScale;
 
@@ -63,8 +61,8 @@ public class VectorTileEncoder {
     }
 
     /**
-     * Create a {@link VectorTileEncoder} with the given extent and a polygon
-     * clip buffer of 8.
+     * Create a {@link VectorTileEncoder} with the given extent and a clip
+     * buffer of 8.
      */
     public VectorTileEncoder(int extent) {
         this(extent, 8, true);
@@ -76,27 +74,27 @@ public class VectorTileEncoder {
      * The extent value control how detailed the coordinates are encoded in the
      * vector tile. 4096 is a good default, 256 can be used to reduce density.
      * <p>
-     * The polygon clip buffer value control how large the clipping area is
-     * outside of the tile for polygons. 0 means that the clipping is done at
-     * the tile border. 8 is a good default.
+     * The clip buffer value control how large the clipping area is outside of
+     * the tile for geometries. 0 means that the clipping is done at the tile
+     * border. 8 is a good default.
      * 
      * @param extent
      *            a int with extent value. 4096 is a good value.
-     * @param polygonClipBuffer
-     *            a int with clip buffer size for polygons. 8 is a good value.
+     * @param clipBuffer
+     *            a int with clip buffer size for geometries. 8 is a good value.
      * @param autoScale
-     *            when true, the encoder expects coordinates in the 0..255 range and will scale
-     *             them automatically to the 0..extent-1 range before encoding.
-     *            when false, the encoder expects coordinates in the 0..extent-1 range. 
-     *            
+     *            when true, the encoder expects coordinates in the 0..255 range
+     *            and will scale them automatically to the 0..extent-1 range
+     *            before encoding. when false, the encoder expects coordinates
+     *            in the 0..extent-1 range.
+     * 
      */
-    public VectorTileEncoder(int extent, int polygonClipBuffer, boolean autoScale) {
+    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale) {
         this.extent = extent;
         this.autoScale = autoScale;
 
         final int size = autoScale ? 256 : extent;
-        clipGeometry = createTileEnvelope(0, size);
-        polygonClipGeometry = createTileEnvelope(polygonClipBuffer, size);
+        clipGeometry = createTileEnvelope(clipBuffer, size);
     }
 
     private static Geometry createTileEnvelope(int buffer, int size) {        
@@ -172,35 +170,32 @@ public class VectorTileEncoder {
         layer.features.add(feature);
     }
     
-	/**
-	 * Clip geometry. polygons right outside. other geometries at tile border.
-	 * This method can be overridden to change clipping behavior.
-	 * 
-	 * @param geometry
-	 * @return
-	 */
+    /**
+     * Clip geometry according to buffer given at construct time. This method
+     * can be overridden to change clipping behavior.
+     * 
+     * @param geometry
+     * @return
+     */
     protected Geometry clipGeometry(Geometry geometry) {
         try {
-            if (geometry instanceof Polygon) {
-                Geometry original = geometry;
-                geometry = polygonClipGeometry.intersection(original);
+            Geometry original = geometry;
+            geometry = clipGeometry.intersection(original);
 
-                // some times a intersection is returned as an empty geometry.
-                // going via wkt fixes the problem.
-                if (geometry.isEmpty() && original.intersects(polygonClipGeometry)) {
-                    Geometry originalViaWkt = new WKTReader().read(original.toText());
-                    geometry = polygonClipGeometry.intersection(originalViaWkt);
-                }
-                
-            } else {
-                geometry = clipGeometry.intersection(geometry);
+            // some times a intersection is returned as an empty geometry.
+            // going via wkt fixes the problem.
+            if (geometry.isEmpty() && original.intersects(clipGeometry)) {
+                Geometry originalViaWkt = new WKTReader().read(original.toText());
+                geometry = clipGeometry.intersection(originalViaWkt);
             }
+
             return geometry;
         } catch (TopologyException e) {
             // could not intersect. original geometry will be used instead.
             return geometry;
         } catch (ParseException e1) {
-            // could not encode/decode WKT. original geometry will be used instead.
+            // could not encode/decode WKT. original geometry will be used
+            // instead.
             return geometry;
         }
     }
