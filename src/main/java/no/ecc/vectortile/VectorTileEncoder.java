@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vividsolutions.jts.geom.Point;
 import vector_tile.VectorTile;
 
 import com.google.protobuf.nano.MessageNano;
@@ -49,7 +50,7 @@ public class VectorTileEncoder {
     private final int extent;
 
     private final Geometry clipGeometry;
-    
+
     private final boolean autoScale;
 
     /**
@@ -77,7 +78,7 @@ public class VectorTileEncoder {
      * The clip buffer value control how large the clipping area is outside of
      * the tile for geometries. 0 means that the clipping is done at the tile
      * border. 8 is a good default.
-     * 
+     *
      * @param extent
      *            a int with extent value. 4096 is a good value.
      * @param clipBuffer
@@ -87,7 +88,7 @@ public class VectorTileEncoder {
      *            and will scale them automatically to the 0..extent-1 range
      *            before encoding. when false, the encoder expects coordinates
      *            in the 0..extent-1 range.
-     * 
+     *
      */
     public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale) {
         this.extent = extent;
@@ -97,7 +98,7 @@ public class VectorTileEncoder {
         clipGeometry = createTileEnvelope(clipBuffer, size);
     }
 
-    private static Geometry createTileEnvelope(int buffer, int size) {        
+    private static Geometry createTileEnvelope(int buffer, int size) {
         Coordinate[] coords = new Coordinate[5];
         coords[0] = new Coordinate(0 - buffer, size + buffer);
         coords[1] = new Coordinate(size + buffer, size + buffer);
@@ -106,7 +107,7 @@ public class VectorTileEncoder {
         coords[4] = coords[0];
         return new GeometryFactory().createPolygon(coords);
     }
-    
+
 
     /**
      * Add a feature with layer name (typically feature type name), some
@@ -115,7 +116,7 @@ public class VectorTileEncoder {
      * <p>
      * For optimization, geometries will be clipped, geometries will simplified
      * and features with geometries outside of the tile will be skipped.
-     * 
+     *
      * @param layerName
      * @param attributes
      * @param geometry
@@ -126,7 +127,7 @@ public class VectorTileEncoder {
             splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
             return;
         }
-        
+
         // skip small Polygon/LineString.
         if (geometry instanceof Polygon && geometry.getArea() < 1.0d) {
             return;
@@ -136,7 +137,11 @@ public class VectorTileEncoder {
         }
 
         // clip geometry
-        geometry = clipGeometry(geometry);
+        if (geometry instanceof Point) {
+            geometry = clipToExtent((Point) geometry);
+        } else {
+            geometry = clipGeometry(geometry);
+        }
 
         // if clipping result in MultiPolygon, then split once more
         if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
@@ -169,11 +174,23 @@ public class VectorTileEncoder {
 
         layer.features.add(feature);
     }
-    
+
+    /**
+     * A short circuit clip to the tile extent (tile boundary + buffer) for points to improve performance.
+     * @see https://github.com/ElectronicChartCentre/java-vector-tile/issues/13
+     */
+    protected Geometry clipToExtent(Point geom) {
+        if (clipGeometry.covers(geom)) {
+            return geom;
+        } else {
+            return new GeometryFactory().createPoint((Coordinate) null); // empty geometry
+        }
+    }
+
     /**
      * Clip geometry according to buffer given at construct time. This method
      * can be overridden to change clipping behavior.
-     * 
+     *
      * @param geometry
      * @return
      */
@@ -265,12 +282,12 @@ public class VectorTileEncoder {
             tileLayers.add(tileLayer);
 
         }
-        
+
         tile.layers = tileLayers.toArray(new VectorTile.Tile.Layer[tileLayers.size()]);
 
         return MessageNano.toByteArray(tile);
     }
-    
+
     static int[] toIntArray(List<Integer> ints) {
         int[] r = new int[ints.size()];
         for (int i = 0; i < ints.size(); i++) {
@@ -360,7 +377,7 @@ public class VectorTileEncoder {
      * varints, vertex parameters are // encoded as sint32 varints (zigzag).
      * Vertex parameters are // also encoded as deltas to the previous position.
      * The original // position is (0,0)
-     * 
+     *
      * @param cs
      * @return
      */
