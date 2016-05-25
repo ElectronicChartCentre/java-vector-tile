@@ -138,7 +138,9 @@ public class VectorTileEncoder {
 
         // clip geometry
         if (geometry instanceof Point) {
-            geometry = clipToExtent((Point) geometry);
+            if (!clipCovers(geometry)) {
+                return;
+            }
         } else {
             geometry = clipGeometry(geometry);
         }
@@ -176,20 +178,20 @@ public class VectorTileEncoder {
     }
 
     /**
-     * A short circuit clip to the tile extent (tile boundary + buffer) for points to improve performance.
+     * A short circuit clip to the tile extent (tile boundary + buffer) for
+     * points to improve performance. This method can be overridden to change
+     * clipping behavior. See also {@link #clipGeometry(Geometry)}.
+     * 
      * @see https://github.com/ElectronicChartCentre/java-vector-tile/issues/13
      */
-    protected Geometry clipToExtent(Point geom) {
-        if (clipGeometry.covers(geom)) {
-            return geom;
-        } else {
-            return new GeometryFactory().createPoint((Coordinate) null); // empty geometry
-        }
+    protected boolean clipCovers(Geometry geom) {
+        return clipGeometry.covers(geom);
     }
 
     /**
      * Clip geometry according to buffer given at construct time. This method
-     * can be overridden to change clipping behavior.
+     * can be overridden to change clipping behavior. See also
+     * {@link #clipCovers(Geometry)}.
      *
      * @param geometry
      * @return
