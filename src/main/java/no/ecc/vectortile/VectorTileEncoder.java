@@ -185,6 +185,10 @@ public class VectorTileEncoder {
      * @see https://github.com/ElectronicChartCentre/java-vector-tile/issues/13
      */
     protected boolean clipCovers(Geometry geom) {
+        if (geom instanceof Point) {
+            Point p = (Point) geom;
+            return geom.getEnvelopeInternal().covers(p.getCoordinate());
+        }
         return clipGeometry.covers(geom);
     }
 
