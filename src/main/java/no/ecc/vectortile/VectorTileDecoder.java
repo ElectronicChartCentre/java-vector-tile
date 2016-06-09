@@ -41,12 +41,12 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 
 public class VectorTileDecoder {
-    
+
     private boolean autoScale = true;
-    
+
     /**
      * Get the autoScale setting.
-     * 
+     *
      * @return autoScale
      */
     public boolean isAutoScale() {
@@ -55,11 +55,11 @@ public class VectorTileDecoder {
 
     /**
      * Set the autoScale setting.
-     * 
+     *
      * @param autoScale
      *            when true, the encoder automatically scale and return all coordinates in the 0..255 range.
-     *            when false, the encoder returns all coordinates in the 0..extent-1 range as they are encoded. 
-     * 
+     *            when false, the encoder returns all coordinates in the 0..extent-1 range as they are encoded.
+     *
      */
     public void setAutoScale(boolean autoScale) {
         this.autoScale = autoScale;
@@ -71,6 +71,10 @@ public class VectorTileDecoder {
 
     public FeatureIterable decode(byte[] data, String layerName) throws IOException {
         return decode(data, new Filter.Single(layerName));
+    }
+
+    public FeatureIterable decode(byte[] data, Set<String> layerNames) throws IOException {
+        return decode(data, new Filter.Any(layerNames));
     }
 
     private FeatureIterable decode(byte[] data, Filter filter) throws IOException {
@@ -333,7 +337,7 @@ public class VectorTileDecoder {
 
         public void remove() {
             throw new UnsupportedOperationException();
-        }        
+        }
 
     }
 
