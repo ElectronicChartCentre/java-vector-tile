@@ -77,7 +77,7 @@ public class VectorTileDecoder {
         return decode(data, new Filter.Any(layerNames));
     }
 
-    private FeatureIterable decode(byte[] data, Filter filter) throws IOException {
+    public FeatureIterable decode(byte[] data, Filter filter) throws IOException {
         VectorTile.Tile tile = VectorTile.Tile.parseFrom(data);
         return new FeatureIterable(tile, filter, autoScale);
     }
