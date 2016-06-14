@@ -187,7 +187,7 @@ public class VectorTileEncoder {
     protected boolean clipCovers(Geometry geom) {
         if (geom instanceof Point) {
             Point p = (Point) geom;
-            return geom.getEnvelopeInternal().covers(p.getCoordinate());
+            return clipGeometry.getEnvelopeInternal().covers(p.getCoordinate());
         }
         return clipGeometry.covers(geom);
     }
