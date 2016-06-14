@@ -243,7 +243,7 @@ public class VectorTileEncoder {
             Layer layer = e.getValue();
 
             VectorTile.Tile.Layer tileLayer = new VectorTile.Tile.Layer();
-            tileLayer.version = 1;
+            tileLayer.version = 2;
             tileLayer.name = layerName;
 
             tileLayer.keys = layer.keys();
