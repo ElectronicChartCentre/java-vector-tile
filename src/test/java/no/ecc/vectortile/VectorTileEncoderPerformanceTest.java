@@ -3,10 +3,10 @@ package no.ecc.vectortile;
 import java.util.Collections;
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.util.Stopwatch;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.util.Stopwatch;
 
 import junit.framework.TestCase;
 
