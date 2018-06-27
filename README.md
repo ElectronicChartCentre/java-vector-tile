@@ -46,4 +46,4 @@ protoc --javanano_out=store_unknown_fields=true,optional_field_style=accessors:s
 
 Mapbox for their [vector tile spec](https://github.com/mapbox/vector-tile-spec), 
 Google for their [Protocol Buffers](https://code.google.com/p/protobuf/) and
-[JTS](http://sourceforge.net/projects/jts-topo-suite/)
+[JTS](https://github.com/locationtech/jts)
