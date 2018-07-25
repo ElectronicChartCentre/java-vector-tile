@@ -332,7 +332,7 @@ public class VectorTileDecoder {
                 geometry = gf.createGeometryCollection(new Geometry[0]);
             }
 
-            return new Feature(layerName, extent, geometry, Collections.unmodifiableMap(attributes));
+            return new Feature(layerName, extent, geometry, Collections.unmodifiableMap(attributes), feature.getId());
         }
 
         public void remove() {
@@ -345,18 +345,24 @@ public class VectorTileDecoder {
 
         private final String layerName;
         private final int extent;
+        private final long id;
         private final Geometry geometry;
         private final Map<String, Object> attributes;
 
-        public Feature(String layerName, int extent, Geometry geometry, Map<String, Object> attributes) {
+        public Feature(String layerName, int extent, Geometry geometry, Map<String, Object> attributes, long id) {
             this.layerName = layerName;
             this.extent = extent;
             this.geometry = geometry;
             this.attributes = attributes;
+            this.id = id;
         }
 
         public String getLayerName() {
             return layerName;
+        }
+
+        public long getId() {
+            return id;
         }
 
         public int getExtent() {
