@@ -57,7 +57,7 @@ public class VectorTileDecoderTest extends TestCase {
         Geometry geometry2 = gf.createPoint(c2);
         
         VectorTileEncoder e = new VectorTileEncoder(512);
-        e.addFeature("layer", Collections.EMPTY_MAP, geometry);
+        e.addFeature("layer", Collections.emptyMap(), geometry);
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();
@@ -88,7 +88,7 @@ public class VectorTileDecoderTest extends TestCase {
     public void testMultiPoint() throws IOException {
         Coordinate c1 = new Coordinate(2, 3);
         Coordinate c2 = new Coordinate(3, 4);
-        Geometry geometry = gf.createMultiPoint(new Coordinate[] { c1, c2 });
+        Geometry geometry = gf.createMultiPointFromCoords(new Coordinate[] { c1, c2 });
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put("hello", 123);
         String layerName = "layer";

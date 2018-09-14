@@ -3,7 +3,6 @@
 A java encoder and decoder for vector tiles according to
 [Mapbox vector tile spec](https://github.com/mapbox/vector-tile-spec)
 
-
 ## Encode a vector tile
 
 ```java
@@ -17,7 +16,7 @@ encoder.addFeature("road", attributes, geometry);
 byte[] encoded = encoder.encode();
 ```
 
-## Maven
+## Maven - with JTS from LocationTech
 
 ```
 <repository>
@@ -28,14 +27,30 @@ byte[] encoded = encoder.encode();
 <dependency>
     <groupId>no.ecc.vectortile</groupId>
     <artifactId>java-vector-tile</artifactId>
-    <version>1.3.1</version>
+    <version>1.3.2</version>
 </dependency>
 ```
+
+## Maven - with JTS from Vividsolutions
+
+```
+<repository>
+    <id>ECC</id>
+    <url>https://github.com/ElectronicChartCentre/ecc-mvn-repo/raw/master/releases</url>
+</repository>
+
+<dependency>
+    <groupId>no.ecc.vectortile</groupId>
+    <artifactId>java-vector-tile</artifactId>
+    <version>1.2.2</version>
+</dependency>
+```
+
 
 ## Generate VectorTile.java
 
 ```
-protoc --javanano_out=store_unknown_fields=true,optional_field_style=accessors:src/main/java/ src/main/resources/vector_tile.proto
+protoc --java_out=src/main/java/ src/main/resources/vector_tile.proto
 ```
 
 ## License
@@ -46,4 +61,4 @@ protoc --javanano_out=store_unknown_fields=true,optional_field_style=accessors:s
 
 Mapbox for their [vector tile spec](https://github.com/mapbox/vector-tile-spec), 
 Google for their [Protocol Buffers](https://code.google.com/p/protobuf/) and
-[JTS](https://github.com/locationtech/jts)
+Dr JTS and LocationTech for [JTS](https://github.com/locationtech/jts)

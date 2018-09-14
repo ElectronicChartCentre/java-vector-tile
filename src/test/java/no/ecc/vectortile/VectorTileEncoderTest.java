@@ -24,14 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import vector_tile.VectorTile;
-
-import org.locationtech.jts.algorithm.CGAlgorithms;
+import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
+
+import junit.framework.TestCase;
+import vector_tile.VectorTile;
 
 public class VectorTileEncoderTest extends TestCase {
 
@@ -65,7 +65,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(8, 12));
         cs.add(new Coordinate(20, 34));
         Geometry geometry = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
-        assertEquals(VectorTile.Tile.LINESTRING, VectorTileEncoder.toGeomType(geometry));
+        assertEquals(VectorTile.Tile.GeomType.LINESTRING, VectorTileEncoder.toGeomType(geometry));
     }
 
     public void testCommands() {
@@ -160,7 +160,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(3, 6));
 
         Coordinate[] coordinates = cs.toArray(new Coordinate[cs.size()]);
-        assertTrue(CGAlgorithms.isCCW(coordinates));
+        assertTrue(Orientation.isCCW(coordinates));
 
         Polygon polygon = gf.createPolygon(coordinates);
 
@@ -189,7 +189,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(3, 6));
 
         Coordinate[] coordinates = cs.toArray(new Coordinate[cs.size()]);
-        assertFalse(CGAlgorithms.isCCW(coordinates));
+        assertFalse(Orientation.isCCW(coordinates));
 
         Polygon polygon = gf.createPolygon(coordinates);
 

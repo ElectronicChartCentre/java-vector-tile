@@ -20,7 +20,6 @@ package no.ecc.vectortile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,14 +30,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import vector_tile.VectorTile;
-import vector_tile.VectorTile.Tile.Layer;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
+
+import vector_tile.VectorTile;
+import vector_tile.VectorTile.Tile.Layer;
 
 public class VectorTileDecoder {
 
@@ -112,8 +111,8 @@ public class VectorTileDecoder {
 
         public Collection<String> getLayerNames() {
             Set<String> layerNames = new HashSet<String>();
-            for (VectorTile.Tile.Layer layer : tile.layers) {
-                layerNames.add(layer.name);
+            for (VectorTile.Tile.Layer layer : tile.getLayersList()) {
+                layerNames.add(layer.getName());
             }
             return Collections.unmodifiableSet(layerNames);
         }
@@ -141,7 +140,7 @@ public class VectorTileDecoder {
         private Feature next;
 
         public FeatureIterator(VectorTile.Tile tile, Filter filter, boolean autoScale) {
-            layerIterator = Arrays.asList(tile.layers).iterator();
+            layerIterator = tile.getLayersList().iterator();
             this.filter = filter;
             this.autoScale = autoScale;
         }
@@ -176,7 +175,7 @@ public class VectorTileDecoder {
                     }
 
                     Layer layer = layerIterator.next();
-                    if (!filter.include(layer.name)) {
+                    if (!filter.include(layer.getName())) {
                         continue;
                     }
 
@@ -193,15 +192,15 @@ public class VectorTileDecoder {
 
         private void parseLayer(VectorTile.Tile.Layer layer) {
 
-            layerName = layer.name;
+            layerName = layer.getName();
             extent = layer.getExtent();
             scale = autoScale ? extent / 256.0 : 1.0;
 
             keys.clear();
-            keys.addAll(Arrays.asList(layer.keys));
+            keys.addAll(layer.getKeysList());
             values.clear();
 
-            for (VectorTile.Tile.Value value : layer.values) {
+            for (VectorTile.Tile.Value value : layer.getValuesList()) {
                 if (value.hasBoolValue()) {
                     values.add(value.getBoolValue());
                 } else if (value.hasDoubleValue()) {
@@ -222,17 +221,17 @@ public class VectorTileDecoder {
 
             }
 
-            featureIterator = Arrays.asList(layer.features).iterator();
+            featureIterator = layer.getFeaturesList().iterator();
         }
 
         private Feature parseFeature(VectorTile.Tile.Feature feature) {
 
-            int tagsCount = feature.tags.length;
+            int tagsCount = feature.getTagsCount();
             Map<String, Object> attributes = new HashMap<String, Object>(tagsCount / 2);
             int tagIdx = 0;
-            while (tagIdx < feature.tags.length) {
-                String key = keys.get(feature.tags[tagIdx++]);
-                Object value = values.get(feature.tags[tagIdx++]);
+            while (tagIdx < feature.getTagsCount()) {
+                String key = keys.get(feature.getTags(tagIdx++));
+                Object value = values.get(feature.getTags(tagIdx++));
                 attributes.put(key, value);
             }
 
@@ -242,14 +241,14 @@ public class VectorTileDecoder {
             List<List<Coordinate>> coordsList = new ArrayList<List<Coordinate>>();
             List<Coordinate> coords = null;
 
-            int geometryCount = feature.geometry.length;
+            int geometryCount = feature.getGeometryCount();
             int length = 0;
             int command = 0;
             int i = 0;
             while (i < geometryCount) {
 
                 if (length <= 0) {
-                    length = feature.geometry[i++];
+                    length = feature.getGeometry(i++);
                     command = length & ((1 << 3) - 1);
                     length = length >> 3;
                 }
@@ -262,15 +261,15 @@ public class VectorTileDecoder {
                     }
 
                     if (command == Command.ClosePath) {
-                        if (feature.getType() != VectorTile.Tile.POINT && !coords.isEmpty()) {
+                        if (feature.getType() != VectorTile.Tile.GeomType.POINT && !coords.isEmpty()) {
                             coords.add(coords.get(0));
                         }
                         length--;
                         continue;
                     }
 
-                    int dx = feature.geometry[i++];
-                    int dy = feature.geometry[i++];
+                    int dx = feature.getGeometry(i++);
+                    int dy = feature.getGeometry(i++);
 
                     length--;
 
@@ -289,7 +288,7 @@ public class VectorTileDecoder {
             Geometry geometry = null;
 
             switch (feature.getType()) {
-            case VectorTile.Tile.LINESTRING:
+            case LINESTRING:
                 List<LineString> lineStrings = new ArrayList<LineString>();
                 for (List<Coordinate> cs : coordsList) {
                     lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
@@ -300,7 +299,7 @@ public class VectorTileDecoder {
                     geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
                 }
                 break;
-            case VectorTile.Tile.POINT:
+            case POINT:
                 List<Coordinate> allCoords = new ArrayList<Coordinate>();
                 for (List<Coordinate> cs : coordsList) {
                     allCoords.addAll(cs);
@@ -308,10 +307,10 @@ public class VectorTileDecoder {
                 if (allCoords.size() == 1) {
                     geometry = gf.createPoint(allCoords.get(0));
                 } else if (allCoords.size() > 1) {
-                    geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
+                    geometry = gf.createMultiPointFromCoords(allCoords.toArray(new Coordinate[allCoords.size()]));
                 }
                 break;
-            case VectorTile.Tile.POLYGON:
+            case POLYGON:
                 List<LinearRing> rings = new ArrayList<LinearRing>();
                 for (List<Coordinate> cs : coordsList) {
                     rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
@@ -322,7 +321,7 @@ public class VectorTileDecoder {
                     geometry = gf.createPolygon(shell, holes);
                 }
                 break;
-            case VectorTile.Tile.UNKNOWN:
+            case UNKNOWN:
                 break;
             default:
                 break;

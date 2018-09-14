@@ -1,7 +1,5 @@
 package vector_tile;
 
-option optimize_for = LITE_RUNTIME;
-
 message Tile {
 
         // GeomType is described in section 4.3.4 of the specification
