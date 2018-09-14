@@ -17,9 +17,9 @@
     </dependency>
                 
     <dependency>
-        <groupId>com.google.protobuf.nano</groupId>
-        <artifactId>protobuf-javanano</artifactId>
-        <version>3.0.0-alpha-2</version>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>3.6.1</version>
     </dependency>
     
     <dependency>
@@ -37,8 +37,8 @@
      <artifactId>maven-compiler-plugin</artifactId>
      <version>2.3.2</version>
      <configuration>
-       <source>1.5</source>
-       <target>1.5</target>
+       <source>1.8</source>
+       <target>1.8</target>
        <debug>true</debug>
        <encoding>UTF-8</encoding>
        <fork>${fork.javac}</fork> 

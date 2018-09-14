@@ -65,7 +65,7 @@ public class VectorTileEncoderTest extends TestCase {
         cs.add(new Coordinate(8, 12));
         cs.add(new Coordinate(20, 34));
         Geometry geometry = gf.createLineString(cs.toArray(new Coordinate[cs.size()]));
-        assertEquals(VectorTile.Tile.LINESTRING, VectorTileEncoder.toGeomType(geometry));
+        assertEquals(VectorTile.Tile.GeomType.LINESTRING, VectorTileEncoder.toGeomType(geometry));
     }
 
     public void testCommands() {
