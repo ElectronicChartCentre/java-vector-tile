@@ -848,7 +848,6 @@ public final class VectorTile {
             .parseWithIOException(PARSER, input, extensionRegistry);
       }
 
-      @java.lang.Override
       public Builder newBuilderForType() { return newBuilder(); }
       public static Builder newBuilder() {
         return DEFAULT_INSTANCE.toBuilder();
@@ -856,7 +855,6 @@ public final class VectorTile {
       public static Builder newBuilder(vector_tile.VectorTile.Tile.Value prototype) {
         return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
       }
-      @java.lang.Override
       public Builder toBuilder() {
         return this == DEFAULT_INSTANCE
             ? new Builder() : new Builder().mergeFrom(this);
@@ -935,12 +933,10 @@ public final class VectorTile {
           return vector_tile.VectorTile.internal_static_vector_tile_Tile_Value_descriptor;
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Value getDefaultInstanceForType() {
           return vector_tile.VectorTile.Tile.Value.getDefaultInstance();
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Value build() {
           vector_tile.VectorTile.Tile.Value result = buildPartial();
           if (!result.isInitialized()) {
@@ -949,7 +945,6 @@ public final class VectorTile {
           return result;
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Value buildPartial() {
           vector_tile.VectorTile.Tile.Value result = new vector_tile.VectorTile.Tile.Value(this);
           int from_bitField0_ = bitField0_;
@@ -1434,7 +1429,6 @@ public final class VectorTile {
 
       @java.lang.Deprecated public static final com.google.protobuf.Parser<Value>
           PARSER = new com.google.protobuf.AbstractParser<Value>() {
-        @java.lang.Override
         public Value parsePartialFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1452,7 +1446,6 @@ public final class VectorTile {
         return PARSER;
       }
 
-      @java.lang.Override
       public vector_tile.VectorTile.Tile.Value getDefaultInstanceForType() {
         return DEFAULT_INSTANCE;
       }
@@ -2036,7 +2029,6 @@ public final class VectorTile {
             .parseWithIOException(PARSER, input, extensionRegistry);
       }
 
-      @java.lang.Override
       public Builder newBuilderForType() { return newBuilder(); }
       public static Builder newBuilder() {
         return DEFAULT_INSTANCE.toBuilder();
@@ -2044,7 +2036,6 @@ public final class VectorTile {
       public static Builder newBuilder(vector_tile.VectorTile.Tile.Feature prototype) {
         return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
       }
-      @java.lang.Override
       public Builder toBuilder() {
         return this == DEFAULT_INSTANCE
             ? new Builder() : new Builder().mergeFrom(this);
@@ -2115,12 +2106,10 @@ public final class VectorTile {
           return vector_tile.VectorTile.internal_static_vector_tile_Tile_Feature_descriptor;
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Feature getDefaultInstanceForType() {
           return vector_tile.VectorTile.Tile.Feature.getDefaultInstance();
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Feature build() {
           vector_tile.VectorTile.Tile.Feature result = buildPartial();
           if (!result.isInitialized()) {
@@ -2129,7 +2118,6 @@ public final class VectorTile {
           return result;
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Feature buildPartial() {
           vector_tile.VectorTile.Tile.Feature result = new vector_tile.VectorTile.Tile.Feature(this);
           int from_bitField0_ = bitField0_;
@@ -2592,7 +2580,6 @@ public final class VectorTile {
 
       @java.lang.Deprecated public static final com.google.protobuf.Parser<Feature>
           PARSER = new com.google.protobuf.AbstractParser<Feature>() {
-        @java.lang.Override
         public Feature parsePartialFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -2610,7 +2597,6 @@ public final class VectorTile {
         return PARSER;
       }
 
-      @java.lang.Override
       public vector_tile.VectorTile.Tile.Feature getDefaultInstanceForType() {
         return DEFAULT_INSTANCE;
       }
@@ -3428,7 +3414,6 @@ public final class VectorTile {
             .parseWithIOException(PARSER, input, extensionRegistry);
       }
 
-      @java.lang.Override
       public Builder newBuilderForType() { return newBuilder(); }
       public static Builder newBuilder() {
         return DEFAULT_INSTANCE.toBuilder();
@@ -3436,7 +3421,6 @@ public final class VectorTile {
       public static Builder newBuilder(vector_tile.VectorTile.Tile.Layer prototype) {
         return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
       }
-      @java.lang.Override
       public Builder toBuilder() {
         return this == DEFAULT_INSTANCE
             ? new Builder() : new Builder().mergeFrom(this);
@@ -3522,12 +3506,10 @@ public final class VectorTile {
           return vector_tile.VectorTile.internal_static_vector_tile_Tile_Layer_descriptor;
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Layer getDefaultInstanceForType() {
           return vector_tile.VectorTile.Tile.Layer.getDefaultInstance();
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Layer build() {
           vector_tile.VectorTile.Tile.Layer result = buildPartial();
           if (!result.isInitialized()) {
@@ -3536,7 +3518,6 @@ public final class VectorTile {
           return result;
         }
 
-        @java.lang.Override
         public vector_tile.VectorTile.Tile.Layer buildPartial() {
           vector_tile.VectorTile.Tile.Layer result = new vector_tile.VectorTile.Tile.Layer(this);
           int from_bitField0_ = bitField0_;
@@ -4738,7 +4719,6 @@ public final class VectorTile {
 
       @java.lang.Deprecated public static final com.google.protobuf.Parser<Layer>
           PARSER = new com.google.protobuf.AbstractParser<Layer>() {
-        @java.lang.Override
         public Layer parsePartialFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -4756,7 +4736,6 @@ public final class VectorTile {
         return PARSER;
       }
 
-      @java.lang.Override
       public vector_tile.VectorTile.Tile.Layer getDefaultInstanceForType() {
         return DEFAULT_INSTANCE;
       }
@@ -4954,7 +4933,6 @@ public final class VectorTile {
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
-    @java.lang.Override
     public Builder newBuilderForType() { return newBuilder(); }
     public static Builder newBuilder() {
       return DEFAULT_INSTANCE.toBuilder();
@@ -4962,7 +4940,6 @@ public final class VectorTile {
     public static Builder newBuilder(vector_tile.VectorTile.Tile prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
-    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE
           ? new Builder() : new Builder().mergeFrom(this);
@@ -5029,12 +5006,10 @@ public final class VectorTile {
         return vector_tile.VectorTile.internal_static_vector_tile_Tile_descriptor;
       }
 
-      @java.lang.Override
       public vector_tile.VectorTile.Tile getDefaultInstanceForType() {
         return vector_tile.VectorTile.Tile.getDefaultInstance();
       }
 
-      @java.lang.Override
       public vector_tile.VectorTile.Tile build() {
         vector_tile.VectorTile.Tile result = buildPartial();
         if (!result.isInitialized()) {
@@ -5043,7 +5018,6 @@ public final class VectorTile {
         return result;
       }
 
-      @java.lang.Override
       public vector_tile.VectorTile.Tile buildPartial() {
         vector_tile.VectorTile.Tile result = new vector_tile.VectorTile.Tile(this);
         int from_bitField0_ = bitField0_;
@@ -5463,7 +5437,6 @@ public final class VectorTile {
 
     @java.lang.Deprecated public static final com.google.protobuf.Parser<Tile>
         PARSER = new com.google.protobuf.AbstractParser<Tile>() {
-      @java.lang.Override
       public Tile parsePartialFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -5481,7 +5454,6 @@ public final class VectorTile {
       return PARSER;
     }
 
-    @java.lang.Override
     public vector_tile.VectorTile.Tile getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }

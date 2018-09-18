@@ -4,7 +4,7 @@
   <groupId>no.ecc.vectortile</groupId>
   <artifactId>java-vector-tile</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <name>java-vector-tile</name>
   <url>http://maven.apache.org</url>
   
@@ -37,8 +37,8 @@
      <artifactId>maven-compiler-plugin</artifactId>
      <version>2.3.2</version>
      <configuration>
-       <source>1.8</source>
-       <target>1.8</target>
+       <source>1.5</source>
+       <target>1.5</target>
        <debug>true</debug>
        <encoding>UTF-8</encoding>
        <fork>${fork.javac}</fork> 
