@@ -52,6 +52,10 @@ public class VectorTileEncoder {
 
     private final boolean autoScale;
 
+    private long autoincrement;
+
+    private final boolean autoincrementIds;
+
     /**
      * Create a {@link VectorTileEncoder} with the default extent of 4096 and
      * clip buffer of 8.
@@ -66,6 +70,10 @@ public class VectorTileEncoder {
      */
     public VectorTileEncoder(int extent) {
         this(extent, 8, true);
+    }
+
+    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale) {
+        this(extent, clipBuffer, autoScale, false);
     }
 
     /**
@@ -87,11 +95,14 @@ public class VectorTileEncoder {
      *            and will scale them automatically to the 0..extent-1 range
      *            before encoding. when false, the encoder expects coordinates
      *            in the 0..extent-1 range.
+     * @param autoincrementIds
      *
      */
-    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale) {
+    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale, boolean autoincrementIds) {
         this.extent = extent;
         this.autoScale = autoScale;
+        this.autoincrementIds = autoincrementIds;
+        this.autoincrement = 1;
 
         final int size = autoScale ? 256 : extent;
         clipGeometry = createTileEnvelope(clipBuffer, size);
@@ -107,6 +118,9 @@ public class VectorTileEncoder {
         return new GeometryFactory().createPolygon(coords);
     }
 
+    public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry) {
+        this.addFeature(layerName, attributes, geometry, this.autoincrementIds ? this.autoincrement++ : -1);
+    }
 
     /**
      * Add a feature with layer name (typically feature type name), some
@@ -119,8 +133,9 @@ public class VectorTileEncoder {
      * @param layerName
      * @param attributes
      * @param geometry
+     * @param id
      */
-    public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry) {
+    public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry, long id) {
         // split up MultiPolygon and GeometryCollection (without subclasses)
         if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
             splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
@@ -163,6 +178,8 @@ public class VectorTileEncoder {
 
         Feature feature = new Feature();
         feature.geometry = geometry;
+        feature.id = id;
+        this.autoincrement = Math.max(this.autoincrement, id + 1);
 
         for (Map.Entry<String, ?> e : attributes.entrySet()) {
             // skip attribute without value
@@ -274,6 +291,10 @@ public class VectorTileEncoder {
                 VectorTile.Tile.Feature.Builder featureBuilder = VectorTile.Tile.Feature.newBuilder();
 
                 featureBuilder.addAllTags(feature.tags);
+                if (feature.id >= 0) {
+                    featureBuilder.setId(feature.id);
+                }
+
                 featureBuilder.setType(toGeomType(geometry));
                 featureBuilder.addAllGeometry(commands(geometry));
 
@@ -489,7 +510,7 @@ public class VectorTileEncoder {
     }
 
     private static final class Feature {
-
+        long id;
         Geometry geometry;
         final List<Integer> tags = new ArrayList<Integer>();
 

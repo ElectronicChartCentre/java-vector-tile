@@ -16,7 +16,16 @@ encoder.addFeature("road", attributes, geometry);
 byte[] encoded = encoder.encode();
 ```
 
+or, specifying the feature id:
+
+```java
+VectorTileEncoder encoder = new VectorTileEncoder();
+encoder.addFeature("road", attributes, geometry, id);
+byte[] encoded = encoder.encode();
+```
+
 ## Maven - with JTS from LocationTech
+=======
 
 ```
 <repository>

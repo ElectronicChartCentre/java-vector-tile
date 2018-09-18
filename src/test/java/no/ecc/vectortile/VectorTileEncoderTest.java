@@ -20,6 +20,7 @@ package no.ecc.vectortile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Polygon;
 
 import junit.framework.TestCase;
+import no.ecc.vectortile.VectorTileDecoder.Feature;
 import vector_tile.VectorTile;
 
 public class VectorTileEncoderTest extends TestCase {
@@ -323,4 +325,82 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals("value6", decodedAttributes.get("key6"));
     }
 
+    public void testProvidedIds() throws IOException {
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+
+        Geometry geometry = gf.createPoint(new Coordinate(3, 6));
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry, 50);
+
+        List<Feature> features = encodeDecodeFeatures(vtm);
+        assertEquals(1, features.size());
+        assertEquals(50, features.get(0).getId());
+    }
+
+    public void testAutoincrementIds() throws IOException {
+        VectorTileEncoder vtm = new VectorTileEncoder(256, 8, true, true);
+
+        for (int i = 0; i < 10; i++) {
+            Geometry geometry = gf.createPoint(new Coordinate(3 * i, 6 * i));
+            Map<String, String> attributes = Collections.singletonMap("key" + i, "value" + i);
+            vtm.addFeature("DEPCNT", attributes, geometry);
+        }
+
+        List<Feature> features = encodeDecodeFeatures(vtm);
+        for (int i = 0; i < features.size(); i++) {
+            assertEquals(i + 1, features.get(i).getId());
+        }
+    }
+
+    public void testProvidedAndAutoincrementIds() throws IOException {
+        VectorTileEncoder vtm = new VectorTileEncoder(256, 8, true, true);
+
+        Geometry geometry = gf.createPoint(new Coordinate(3, 6));
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry, 50);
+
+        geometry = gf.createPoint(new Coordinate(3, 6));
+        attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry);
+
+        geometry = gf.createPoint(new Coordinate(3, 6));
+        attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry, 27);
+
+        geometry = gf.createPoint(new Coordinate(3, 6));
+        attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry);
+
+        List<Feature> features = encodeDecodeFeatures(vtm);
+        assertEquals(4, features.size());
+        assertEquals(50, features.get(0).getId());
+        assertEquals(51, features.get(1).getId());
+        assertEquals(27, features.get(2).getId());
+        assertEquals(52, features.get(3).getId());
+    }
+
+    public void testNullIds() throws IOException {
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+
+        Geometry geometry = gf.createPoint(new Coordinate(3, 6));
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry, 50);
+
+        geometry = gf.createPoint(new Coordinate(3, 6));
+        attributes = Collections.singletonMap("key1", "value1");
+        vtm.addFeature("DEPCNT", attributes, geometry);
+
+        List<Feature> features = encodeDecodeFeatures(vtm);
+        assertEquals(2, features.size());
+        assertEquals(50, features.get(0).getId());
+        assertEquals(0, features.get(1).getId());
+    }
+
+    private List<Feature> encodeDecodeFeatures(VectorTileEncoder vtm) throws IOException {
+        byte[] encoded = vtm.encode();
+        assertNotSame(0, encoded.length);
+
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        return decoder.decode(encoded, "DEPCNT").asList();
+    }
 }
