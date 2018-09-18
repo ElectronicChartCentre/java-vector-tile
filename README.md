@@ -9,7 +9,7 @@ A java encoder and decoder for vector tiles according to
 VectorTileEncoder encoder = new VectorTileEncoder();
 
 // Add one or more features with a layer name, a Map with attributes and a JTS Geometry. 
-// The Geometry uses (0,0) in lower left and (256,256) in upper right.
+// The Geometry uses (0,0) in upper left and (256,256) in lower right.
 encoder.addFeature("road", attributes, geometry);
 
 // Finally, get the byte array

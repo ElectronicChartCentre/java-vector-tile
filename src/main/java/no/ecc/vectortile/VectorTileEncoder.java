@@ -125,7 +125,7 @@ public class VectorTileEncoder {
     /**
      * Add a feature with layer name (typically feature type name), some
      * attributes and a Geometry. The Geometry must be in "pixel" space 0,0
-     * lower left and 256,256 upper right.
+     * upper left and 256,256 lower right.
      * <p>
      * For optimization, geometries will be clipped, geometries will simplified
      * and features with geometries outside of the tile will be skipped.
