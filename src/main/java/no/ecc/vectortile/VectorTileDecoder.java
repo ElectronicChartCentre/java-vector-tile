@@ -30,11 +30,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 import vector_tile.VectorTile;
 import vector_tile.VectorTile.Tile.Layer;
@@ -314,18 +316,31 @@ public class VectorTileDecoder {
                 }
                 break;
             case POLYGON:
-                List<LinearRing> rings = new ArrayList<LinearRing>();
+                List<List<LinearRing>> polygonRings = new ArrayList<List<LinearRing>>();
+                List<LinearRing> ringsForCurrentPolygon = new ArrayList<LinearRing>();
                 for (List<Coordinate> cs : coordsList) {
                     // skip hole with too few coordinates
-                    if (rings.size() > 0 && cs.size() < 4) {
+                    if (ringsForCurrentPolygon.size() > 0 && cs.size() < 4) {
                         continue;
                     }
-                    rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
+                    LinearRing ring = gf.createLinearRing(cs.toArray(new Coordinate[cs.size()]));
+                    if (CGAlgorithms.isCCW(ring.getCoordinates())) {
+                        ringsForCurrentPolygon = new ArrayList<LinearRing>();
+                        polygonRings.add(ringsForCurrentPolygon);
+                    }
+                    ringsForCurrentPolygon.add(ring);
                 }
-                if (rings.size() > 0) {
+                List<Polygon> polygons = new ArrayList<Polygon>();
+                for (List<LinearRing> rings : polygonRings) {
                     LinearRing shell = rings.get(0);
                     LinearRing[] holes = rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]);
-                    geometry = gf.createPolygon(shell, holes);
+                    polygons.add(gf.createPolygon(shell, holes));
+                }
+                if (polygons.size() == 1) {
+                    geometry = polygons.get(0);
+                }
+                if (polygons.size() > 1) {
+                    geometry = gf.createMultiPolygon(GeometryFactory.toPolygonArray(polygons));
                 }
                 break;
             case UNKNOWN:

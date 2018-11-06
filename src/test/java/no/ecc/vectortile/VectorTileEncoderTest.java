@@ -20,20 +20,23 @@ package no.ecc.vectortile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import no.ecc.vectortile.VectorTileDecoder.Feature;
-import vector_tile.VectorTile;
-
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+
+import junit.framework.TestCase;
+import no.ecc.vectortile.VectorTileDecoder.Feature;
+import vector_tile.VectorTile;
 
 public class VectorTileEncoderTest extends TestCase {
 
@@ -93,6 +96,35 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(9, commands.size());
 
     }
+    
+    public void testPolygonCommands() {
+        
+        // https://github.com/mapbox/vector-tile-spec/blob/master/2.1/README.md
+
+        // Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+        cs.add(new Coordinate(3, 6));
+        Polygon polygon = gf.createPolygon(cs.toArray(new Coordinate[cs.size()]));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(polygon);
+        assertNotNull(commands);
+        // Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertCommand(18, commands, 3);
+        assertCommand(10, commands, 4);
+        assertCommand(12, commands, 5);
+        assertCommand(24, commands, 6);
+        assertCommand(44, commands, 7);
+        assertCommand(15, commands, 8);
+        assertEquals(9, commands.size());
+
+    }
+
 
     public void testCommandsFilter() {
 
@@ -123,7 +155,7 @@ public class VectorTileEncoderTest extends TestCase {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(3, 6));
-        
+
         List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false);
         assertNotNull(commands);
 
@@ -133,14 +165,15 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(3, commands.size());
 
     }
-    
+
     public void testMultiPoint() {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(5, 7));
         cs.add(new Coordinate(3, 2));
 
-        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false, true);
+        List<Integer> commands = new VectorTileEncoder(256).commands(cs.toArray(new Coordinate[cs.size()]), false,
+                true);
         assertNotNull(commands);
 
         assertCommand(17, commands, 0);
@@ -214,7 +247,7 @@ public class VectorTileEncoderTest extends TestCase {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(3, 6));
-        
+
         List<Integer> commands = new VectorTileEncoder(512).commands(cs.toArray(new Coordinate[cs.size()]), false);
         assertNotNull(commands);
 
@@ -223,13 +256,14 @@ public class VectorTileEncoderTest extends TestCase {
         assertCommand(24, commands, 2);
         assertEquals(3, commands.size());
     }
-    
+
     public void testExtentWithoutScale() {
 
         List<Coordinate> cs = new ArrayList<Coordinate>();
         cs.add(new Coordinate(6, 300));
-        
-        List<Integer> commands = new VectorTileEncoder(512, 8, false).commands(cs.toArray(new Coordinate[cs.size()]), false);
+
+        List<Integer> commands = new VectorTileEncoder(512, 8, false).commands(cs.toArray(new Coordinate[cs.size()]),
+                false);
         assertNotNull(commands);
 
         assertCommand(9, commands, 0);
@@ -394,6 +428,74 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(2, features.size());
         assertEquals(50, features.get(0).getId());
         assertEquals(0, features.get(1).getId());
+    }
+
+    public void testMultiPolygonCommands() throws IOException {
+        // see https://github.com/mapbox/vector-tile-spec/blob/master/2.1/README.md
+
+        Coordinate[] cs1 = new Coordinate[5];
+        cs1[0] = new Coordinate(0, 0);
+        cs1[1] = new Coordinate(10, 0);
+        cs1[2] = new Coordinate(10, 10);
+        cs1[3] = new Coordinate(0, 10);
+        cs1[4] = new Coordinate(0, 0);
+
+        Coordinate[] cs2 = new Coordinate[5];
+        cs2[0] = new Coordinate(11, 11);
+        cs2[1] = new Coordinate(20, 11);
+        cs2[2] = new Coordinate(20, 20);
+        cs2[3] = new Coordinate(11, 20);
+        cs2[4] = new Coordinate(11, 11);
+
+        Coordinate[] cs2i = new Coordinate[5];
+        cs2i[0] = new Coordinate(13, 13);
+        cs2i[1] = new Coordinate(13, 17);
+        cs2i[2] = new Coordinate(17, 17);
+        cs2i[3] = new Coordinate(17, 13);
+        cs2i[4] = new Coordinate(13, 13);
+
+        Polygon[] polygons = new Polygon[2];
+        polygons[0] = gf.createPolygon(cs1);
+        polygons[1] = gf.createPolygon(gf.createLinearRing(cs2), new LinearRing[] { gf.createLinearRing(cs2i) });
+        MultiPolygon mp = gf.createMultiPolygon(polygons);
+
+        VectorTileEncoder vte = new VectorTileEncoder(256);
+        List<Integer> commands = vte.commands(mp);
+        assertEquals(Arrays.asList(9, 0, 0, 26, 20, 0, 0, 20, 19, 0, 15, 9, 22, 2, 26, 18, 0, 0, 18, 17, 0, 15, 9, 4,
+                13, 26, 0, 8, 8, 0, 0, 7, 15), commands);
+        
+        vte = new VectorTileEncoder(256);
+        vte.addFeature("x", Collections.EMPTY_MAP, mp);
+        
+        VectorTileDecoder vtd = new VectorTileDecoder();
+        List<Feature> features = vtd.decode(vte.encode()).asList();
+        assertEquals(1, features.size());
+        MultiPolygon mpe = (MultiPolygon) features.get(0).getGeometry();
+        assertEquals(2, mpe.getNumGeometries());
+    }
+
+    public void testMultiPolygon() throws IOException {
+        Polygon[] polygons = new Polygon[2];
+        polygons[0] = (Polygon) gf.createPoint(new Coordinate(13, 16)).buffer(3);
+        polygons[1] = (Polygon) gf.createPoint(new Coordinate(24, 25)).buffer(5)
+                .symDifference(gf.createPoint(new Coordinate(24, 25)).buffer(1.0));
+        MultiPolygon mp = gf.createMultiPolygon(polygons);
+        assertTrue(mp.isValid());
+        System.out.println(mp.toString());
+
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+        vtm.addFeature("mp", attributes, mp);
+
+        byte[] encoded = vtm.encode();
+        assertTrue(encoded.length > 0);
+
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        List<Feature> features = decoder.decode(encoded).asList();
+        assertEquals(1, features.size());
+        MultiPolygon mp2 = (MultiPolygon) features.get(0).getGeometry();
+        assertEquals(mp.getNumGeometries(), mp2.getNumGeometries());
     }
 
     private List<Feature> encodeDecodeFeatures(VectorTileEncoder vtm) throws IOException {
