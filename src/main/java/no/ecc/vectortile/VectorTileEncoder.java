@@ -27,7 +27,6 @@ import java.util.Map;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
@@ -136,13 +135,11 @@ public class VectorTileEncoder {
      * @param id
      */
     public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry, long id) {
-        // split up MultiPolygon and GeometryCollection (without subclasses)
-        if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
-            splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
+        
+        // skip small Polygon/LineString.
+        if (geometry instanceof MultiPolygon && geometry.getArea() < 1.0d) {
             return;
         }
-
-        // skip small Polygon/LineString.
         if (geometry instanceof Polygon && geometry.getArea() < 1.0d) {
             return;
         }
@@ -157,12 +154,6 @@ public class VectorTileEncoder {
             }
         } else {
             geometry = clipGeometry(geometry);
-        }
-
-        // if clipping result in MultiPolygon, then split once more
-        if (geometry instanceof MultiPolygon || geometry.getClass().equals(GeometryCollection.class)) {
-            splitAndAddFeatures(layerName, attributes, (GeometryCollection) geometry);
-            return;
         }
 
         // no need to add empty geometry
@@ -239,13 +230,6 @@ public class VectorTileEncoder {
         }
     }
 
-    private void splitAndAddFeatures(String layerName, Map<String, ?> attributes, GeometryCollection geometry) {
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            Geometry subGeometry = geometry.getGeometryN(i);
-            addFeature(layerName, attributes, subGeometry);
-        }
-    }
-
     /**
      * @return a byte array with the vector tile
      */
@@ -296,6 +280,9 @@ public class VectorTileEncoder {
                 }
 
                 featureBuilder.setType(toGeomType(geometry));
+                
+                x = 0;
+                y = 0;
                 featureBuilder.addAllGeometry(commands(geometry));
 
                 tileLayer.addFeatures(featureBuilder.build());
@@ -324,6 +311,9 @@ public class VectorTileEncoder {
         if (geometry instanceof org.locationtech.jts.geom.Polygon) {
             return VectorTile.Tile.GeomType.POLYGON;
         }
+        if (geometry instanceof org.locationtech.jts.geom.MultiPolygon) {
+            return VectorTile.Tile.GeomType.POLYGON;
+        }
         return VectorTile.Tile.GeomType.UNKNOWN;
     }
 
@@ -332,48 +322,62 @@ public class VectorTileEncoder {
     }
 
     List<Integer> commands(Geometry geometry) {
-
-        x = 0;
-        y = 0;
-
-        if (geometry instanceof Polygon) {
-            Polygon polygon = (Polygon) geometry;
-            List<Integer> commands = new ArrayList<Integer>();
-
-            // According to the vector tile specification, the exterior ring of a polygon
-            // must be in clockwise order, while the interior ring in counter-clockwise order.
-            // In the tile coordinate system, Y axis is positive down.
-            //
-            // However, in geographic coordinate system, Y axis is positive up.
-            // Therefore, we must reverse the coordinates.
-            // So, the code below will make sure that exterior ring is in counter-clockwise order
-            // and interior ring in clockwise order.
-            LineString exteriorRing = polygon.getExteriorRing();
-            if (!Orientation.isCCW(exteriorRing.getCoordinates())) {
-                exteriorRing = (LineString) exteriorRing.reverse();
-            }
-            commands.addAll(commands(exteriorRing.getCoordinates(), true));
-
-            for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
-                LineString interiorRing = polygon.getInteriorRingN(i);
-                if (Orientation.isCCW(interiorRing.getCoordinates())) {
-                    interiorRing = (LineString) interiorRing.reverse();
-                }
-                commands.addAll(commands(interiorRing.getCoordinates(), true));
-            }
-            return commands;
-        }
-
+        
         if (geometry instanceof MultiLineString) {
-            List<Integer> commands = new ArrayList<Integer>();
-            GeometryCollection gc = (GeometryCollection) geometry;
-            for (int i = 0; i < gc.getNumGeometries(); i++) {
-                commands.addAll(commands(gc.getGeometryN(i).getCoordinates(), false));
-            }
-            return commands;
+            return commands((MultiLineString) geometry);
         }
-
+        if (geometry instanceof Polygon) {
+            return commands((Polygon) geometry);
+        }
+        if (geometry instanceof MultiPolygon) {
+            return commands((MultiPolygon) geometry);
+        }        
+        
         return commands(geometry.getCoordinates(), shouldClosePath(geometry), geometry instanceof MultiPoint);
+    }
+    
+    List<Integer> commands(MultiLineString mls) {
+        List<Integer> commands = new ArrayList<Integer>();
+        for (int i = 0; i < mls.getNumGeometries(); i++) {
+            commands.addAll(commands(mls.getGeometryN(i).getCoordinates(), false));
+        }
+        return commands;
+    }
+    
+    List<Integer> commands(MultiPolygon mp) {
+        List<Integer> commands = new ArrayList<Integer>();
+        for (int i = 0; i < mp.getNumGeometries(); i++) {
+            Polygon polygon = (Polygon) mp.getGeometryN(i);
+            commands.addAll(commands(polygon));
+        }
+        return commands;
+    }
+    
+    List<Integer> commands(Polygon polygon) {
+        List<Integer> commands = new ArrayList<Integer>();
+
+        // According to the vector tile specification, the exterior ring of a polygon
+        // must be in clockwise order, while the interior ring in counter-clockwise order.
+        // In the tile coordinate system, Y axis is positive down.
+        //
+        // However, in geographic coordinate system, Y axis is positive up.
+        // Therefore, we must reverse the coordinates.
+        // So, the code below will make sure that exterior ring is in counter-clockwise order
+        // and interior ring in clockwise order.
+        LineString exteriorRing = polygon.getExteriorRing();
+        if (!Orientation.isCCW(exteriorRing.getCoordinates())) {
+            exteriorRing = (LineString) exteriorRing.reverse();
+        }
+        commands.addAll(commands(exteriorRing.getCoordinates(), true));
+
+        for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+            LineString interiorRing = polygon.getInteriorRingN(i);
+            if (Orientation.isCCW(interiorRing.getCoordinates())) {
+                interiorRing = (LineString) interiorRing.reverse();
+            }
+            commands.addAll(commands(interiorRing.getCoordinates(), true));
+        }
+        return commands;
     }
 
     private int x = 0;
