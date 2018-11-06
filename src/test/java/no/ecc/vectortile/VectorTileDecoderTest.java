@@ -28,15 +28,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import no.ecc.vectortile.VectorTileDecoder.Feature;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
+
+import junit.framework.TestCase;
+import no.ecc.vectortile.VectorTileDecoder.Feature;
 
 public class VectorTileDecoderTest extends TestCase {
 
@@ -278,6 +278,34 @@ public class VectorTileDecoderTest extends TestCase {
                 }
             }
         }
+    }
+    
+    public void testLineWithOnePoint() throws IOException {
+        InputStream is = getClass().getResourceAsStream("/cells-11-1065-567.mvt");
+        assertNotNull(is);
+
+        VectorTileDecoder d = new VectorTileDecoder();
+        int numberOfFeatures = 0;
+        for (Iterator<VectorTileDecoder.Feature> it = d.decode(toBytes(is)).iterator(); it.hasNext();) {
+            Feature f = it.next();
+            assertNotNull(f.getGeometry());
+            numberOfFeatures++;
+        }
+        assertEquals(306, numberOfFeatures);
+    }
+    
+    public void testPolygonWithThreePointHole() throws IOException {
+        InputStream is = getClass().getResourceAsStream("/cells-11-1058-568.mvt");
+        assertNotNull(is);
+
+        VectorTileDecoder d = new VectorTileDecoder();
+        int numberOfFeatures = 0;
+        for (Iterator<VectorTileDecoder.Feature> it = d.decode(toBytes(is)).iterator(); it.hasNext();) {
+            Feature f = it.next();
+            assertNotNull(f.getGeometry());
+            numberOfFeatures++;
+        }
+        assertEquals(699, numberOfFeatures);
     }
 
     private void assertEquals(Coordinate expected, int extent, Coordinate actual) {
