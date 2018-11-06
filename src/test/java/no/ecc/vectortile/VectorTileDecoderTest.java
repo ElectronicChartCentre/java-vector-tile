@@ -48,14 +48,14 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(1, VectorTileDecoder.zigZagDecode(2));
         assertEquals(-2, VectorTileDecoder.zigZagDecode(3));
     }
-    
+
     public void testWithoutScaling() throws IOException {
         Coordinate c = new Coordinate(2, 3);
         Geometry geometry = gf.createPoint(c);
-        
+
         Coordinate c2 = new Coordinate(4, 6);
         Geometry geometry2 = gf.createPoint(c2);
-        
+
         VectorTileEncoder e = new VectorTileEncoder(512);
         e.addFeature("layer", Collections.emptyMap(), geometry);
         byte[] encoded = e.encode();
@@ -232,8 +232,7 @@ public class VectorTileDecoderTest extends TestCase {
 
         VectorTileDecoder d = new VectorTileDecoder();
 
-        d.decode(encoded)
-                .getLayerNames()
+        d.decode(encoded).getLayerNames()
                 .equals(new HashSet<String>(Arrays.asList("landuse", "waterway", "water", "barrier_line", "building",
                         "landuse_overlay", "tunnel", "road", "bridge", "place_label", "water_label", "poi_label",
                         "road_label", "waterway_label")));
@@ -280,6 +279,34 @@ public class VectorTileDecoderTest extends TestCase {
         }
     }
 
+    public void testLineWithOnePoint() throws IOException {
+        InputStream is = getClass().getResourceAsStream("/cells-11-1065-567.mvt");
+        assertNotNull(is);
+
+        VectorTileDecoder d = new VectorTileDecoder();
+        int numberOfFeatures = 0;
+        for (Iterator<VectorTileDecoder.Feature> it = d.decode(toBytes(is)).iterator(); it.hasNext();) {
+            Feature f = it.next();
+            assertNotNull(f.getGeometry());
+            numberOfFeatures++;
+        }
+        assertEquals(306, numberOfFeatures);
+    }
+
+    public void testPolygonWithThreePointHole() throws IOException {
+        InputStream is = getClass().getResourceAsStream("/cells-11-1058-568.mvt");
+        assertNotNull(is);
+
+        VectorTileDecoder d = new VectorTileDecoder();
+        int numberOfFeatures = 0;
+        for (Iterator<VectorTileDecoder.Feature> it = d.decode(toBytes(is)).iterator(); it.hasNext();) {
+            Feature f = it.next();
+            assertNotNull(f.getGeometry());
+            numberOfFeatures++;
+        }
+        assertEquals(699, numberOfFeatures);
+    }
+
     private void assertEquals(Coordinate expected, int extent, Coordinate actual) {
         double scale = extent / 256.0;
         assertEquals(expected.x / scale, actual.x);
@@ -318,5 +345,5 @@ public class VectorTileDecoderTest extends TestCase {
         }
         return baos.toByteArray();
     }
-    
+
 }

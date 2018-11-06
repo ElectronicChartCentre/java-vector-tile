@@ -291,6 +291,9 @@ public class VectorTileDecoder {
             case LINESTRING:
                 List<LineString> lineStrings = new ArrayList<LineString>();
                 for (List<Coordinate> cs : coordsList) {
+                    if (cs.size() <= 1) {
+                        continue;
+                    }
                     lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
                 }
                 if (lineStrings.size() == 1) {
@@ -313,6 +316,10 @@ public class VectorTileDecoder {
             case POLYGON:
                 List<LinearRing> rings = new ArrayList<LinearRing>();
                 for (List<Coordinate> cs : coordsList) {
+                    // skip hole with too few coordinates
+                    if (rings.size() > 0 && cs.size() < 4) {
+                        continue;
+                    }
                     rings.add(gf.createLinearRing(cs.toArray(new Coordinate[cs.size()])));
                 }
                 if (rings.size() > 0) {
