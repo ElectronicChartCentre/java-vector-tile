@@ -271,6 +271,8 @@ public class VectorTileEncoder {
                     tileValue.setFloatValue(((Float) value).floatValue());
                 } else if (value instanceof Double) {
                     tileValue.setDoubleValue(((Double) value).doubleValue());
+                } else if (value instanceof Boolean) {
+                    tileValue.setBoolValue(((Boolean) value).booleanValue());
                 } else {
                     tileValue.setStringValue(value.toString());
                 }
