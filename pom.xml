@@ -4,7 +4,7 @@
   <groupId>no.ecc.vectortile</groupId>
   <artifactId>java-vector-tile</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.4</version>
+  <version>1.2.5-SNAPSHOT</version>
   <name>java-vector-tile</name>
   <url>http://maven.apache.org</url>
   
@@ -19,7 +19,7 @@
     <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
-        <version>3.6.1</version>
+        <version>3.9.1</version>
     </dependency>
     
     <dependency>
@@ -35,10 +35,10 @@
    <plugin>
      <groupId>org.apache.maven.plugins</groupId>
      <artifactId>maven-compiler-plugin</artifactId>
-     <version>2.3.2</version>
+     <version>3.8.1</version>
      <configuration>
-       <source>1.5</source>
-       <target>1.5</target>
+       <source>1.8</source>
+       <target>1.8</target>
        <debug>true</debug>
        <encoding>UTF-8</encoding>
        <fork>${fork.javac}</fork> 
@@ -49,7 +49,7 @@
     <inherited>true</inherited>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-source-plugin</artifactId>
-    <version>2.2.1</version>
+    <version>3.1.0</version>
     <configuration>
      <attach>true</attach>
     </configuration>
