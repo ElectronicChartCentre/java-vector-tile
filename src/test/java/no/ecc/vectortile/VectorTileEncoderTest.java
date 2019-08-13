@@ -344,6 +344,8 @@ public class VectorTileEncoderTest extends TestCase {
         attributes.put("key4", Double.valueOf(567.123d));
         attributes.put("key5", Long.valueOf(-123));
         attributes.put("key6", "value6");
+        attributes.put("key7", Boolean.TRUE);
+        attributes.put("key8", Boolean.FALSE);
 
         vtm.addFeature("DEPCNT", attributes, geometry);
 
@@ -359,6 +361,8 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(Double.valueOf(567.123d), decodedAttributes.get("key4"));
         assertEquals(Long.valueOf(-123), decodedAttributes.get("key5"));
         assertEquals("value6", decodedAttributes.get("key6"));
+        assertEquals(Boolean.TRUE, decodedAttributes.get("key7"));
+        assertEquals(Boolean.FALSE, decodedAttributes.get("key8"));
     }
 
     public void testProvidedIds() throws IOException {
