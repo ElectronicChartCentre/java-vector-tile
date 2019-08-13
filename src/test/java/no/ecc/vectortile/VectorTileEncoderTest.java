@@ -29,9 +29,11 @@ import java.util.Map;
 import com.vividsolutions.jts.algorithm.CGAlgorithms;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import junit.framework.TestCase;
@@ -496,6 +498,26 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(1, features.size());
         MultiPolygon mp2 = (MultiPolygon) features.get(0).getGeometry();
         assertEquals(mp.getNumGeometries(), mp2.getNumGeometries());
+    }
+
+    public void testGeometryCollection() throws IOException {
+        Geometry[] geometries = new Geometry[2];
+        geometries[0] = (Polygon) gf.createPoint(new Coordinate(13, 16)).buffer(3);
+        geometries[1] = gf.createPoint(new Coordinate(24, 25));
+        GeometryCollection gc = gf.createGeometryCollection(geometries);
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+        vtm.addFeature("gc", attributes, gc);
+
+        byte[] encoded = vtm.encode();
+        assertTrue(encoded.length > 0);
+
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        List<Feature> features = decoder.decode(encoded).asList();
+        assertEquals(2, features.size());
+        assertTrue(features.get(0).getGeometry() instanceof Polygon);
+        assertTrue(features.get(1).getGeometry() instanceof Point);
     }
 
     private List<Feature> encodeDecodeFeatures(VectorTileEncoder vtm) throws IOException {
