@@ -27,6 +27,7 @@ import java.util.Map;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
@@ -144,6 +145,16 @@ public class VectorTileEncoder {
             return;
         }
         if (geometry instanceof LineString && geometry.getLength() < 1.0d) {
+            return;
+        }
+        
+        // special handling of GeometryCollection. subclasses are not handled here.
+        if (geometry.getClass().equals(GeometryCollection.class)) {
+            for (int i = 0; i < geometry.getNumGeometries(); i++) {
+                Geometry subGeometry = geometry.getGeometryN(i);
+                // keeping the id. any better suggestion?
+                addFeature(layerName, attributes, subGeometry, id);
+            }
             return;
         }
 
