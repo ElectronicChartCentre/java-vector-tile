@@ -57,7 +57,7 @@ public class VectorTileDecoderTest extends TestCase {
         Geometry geometry2 = gf.createPoint(c2);
         
         VectorTileEncoder e = new VectorTileEncoder(512);
-        e.addFeature("layer", Collections.emptyMap(), geometry);
+        e.addFeature("layer", Collections.EMPTY_MAP, geometry);
         byte[] encoded = e.encode();
 
         VectorTileDecoder d = new VectorTileDecoder();

@@ -471,7 +471,7 @@ public class VectorTileEncoderTest extends TestCase {
                 13, 26, 0, 8, 8, 0, 0, 7, 15), commands);
         
         vte = new VectorTileEncoder(256);
-        vte.addFeature("x", Collections.emptyMap(), mp);
+        vte.addFeature("x", Collections.EMPTY_MAP, mp);
         
         VectorTileDecoder vtd = new VectorTileDecoder();
         List<Feature> features = vtd.decode(vte.encode()).asList();
