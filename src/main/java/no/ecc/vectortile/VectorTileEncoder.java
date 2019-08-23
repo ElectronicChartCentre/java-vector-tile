@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 import vector_tile.VectorTile;
 
@@ -55,6 +56,8 @@ public class VectorTileEncoder {
     private long autoincrement;
 
     private final boolean autoincrementIds;
+    
+    private final double simplificationDistanceTolerance;
 
     /**
      * Create a {@link VectorTileEncoder} with the default extent of 4096 and
@@ -75,6 +78,10 @@ public class VectorTileEncoder {
     public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale) {
         this(extent, clipBuffer, autoScale, false);
     }
+    
+    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale, boolean autoincrementIds) {
+        this(extent, clipBuffer, autoScale, autoincrementIds, -1.0);
+    }
 
     /**
      * Create a {@link VectorTileEncoder} with the given extent value.
@@ -82,27 +89,32 @@ public class VectorTileEncoder {
      * The extent value control how detailed the coordinates are encoded in the
      * vector tile. 4096 is a good default, 256 can be used to reduce density.
      * <p>
-     * The clip buffer value control how large the clipping area is outside of
-     * the tile for geometries. 0 means that the clipping is done at the tile
-     * border. 8 is a good default.
+     * The clip buffer value control how large the clipping area is outside of the
+     * tile for geometries. 0 means that the clipping is done at the tile border. 8
+     * is a good default.
      *
      * @param extent
      *            a int with extent value. 4096 is a good value.
      * @param clipBuffer
      *            a int with clip buffer size for geometries. 8 is a good value.
      * @param autoScale
-     *            when true, the encoder expects coordinates in the 0..255 range
-     *            and will scale them automatically to the 0..extent-1 range
-     *            before encoding. when false, the encoder expects coordinates
-     *            in the 0..extent-1 range.
+     *            when true, the encoder expects coordinates in the 0..255 range and
+     *            will scale them automatically to the 0..extent-1 range before
+     *            encoding. when false, the encoder expects coordinates in the
+     *            0..extent-1 range.
      * @param autoincrementIds
-     *
+     * @param simplificationDistanceTolerance
+     *            a positive double representing the distance tolerance to be used
+     *            for non-points before (optional) scaling and encoding. A value <=
+     *            0 will prevent simplifying geometry. 0.1 seem to be a good value
+     *            when autoScale is turned on.
      */
-    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale, boolean autoincrementIds) {
+    public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale, boolean autoincrementIds, double simplificationDistanceTolerance) {
         this.extent = extent;
         this.autoScale = autoScale;
         this.autoincrementIds = autoincrementIds;
         this.autoincrement = 1;
+        this.simplificationDistanceTolerance = simplificationDistanceTolerance;
 
         final int size = autoScale ? 256 : extent;
         clipGeometry = createTileEnvelope(clipBuffer, size);
@@ -123,12 +135,12 @@ public class VectorTileEncoder {
     }
 
     /**
-     * Add a feature with layer name (typically feature type name), some
-     * attributes and a Geometry. The Geometry must be in "pixel" space 0,0
-     * upper left and 256,256 lower right.
+     * Add a feature with layer name (typically feature type name), some attributes
+     * and a Geometry. The Geometry must be in "pixel" space 0,0 upper left and
+     * 256,256 lower right.
      * <p>
-     * For optimization, geometries will be clipped, geometries will simplified
-     * and features with geometries outside of the tile will be skipped.
+     * For optimization, geometries will be clipped and simplified. Features with
+     * geometries outside of the tile will be skipped.
      *
      * @param layerName
      * @param attributes
@@ -165,6 +177,11 @@ public class VectorTileEncoder {
             }
         } else {
             geometry = clipGeometry(geometry);
+        }
+        
+        // simplify non-points
+        if (simplificationDistanceTolerance > 0.0 && !(geometry instanceof Point)) {
+            geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
         }
 
         // no need to add empty geometry
