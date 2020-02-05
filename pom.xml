@@ -4,7 +4,7 @@
   <groupId>no.ecc.vectortile</groupId>
   <artifactId>java-vector-tile</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.6</version>
+  <version>1.2.7</version>
   <name>java-vector-tile</name>
   <url>http://maven.apache.org</url>
   
@@ -12,8 +12,8 @@
   
     <dependency>
         <groupId>com.vividsolutions</groupId>
-        <artifactId>jts</artifactId>
-        <version>1.13</version>
+        <artifactId>jts-core</artifactId>
+        <version>1.14.0</version>
     </dependency>
                 
     <dependency>
@@ -37,8 +37,8 @@
      <artifactId>maven-compiler-plugin</artifactId>
      <version>3.8.1</version>
      <configuration>
-       <source>1.5</source>
-       <target>1.5</target>
+       <source>1.6</source>
+       <target>1.6</target>
        <debug>true</debug>
        <encoding>UTF-8</encoding>
        <fork>${fork.javac}</fork> 
