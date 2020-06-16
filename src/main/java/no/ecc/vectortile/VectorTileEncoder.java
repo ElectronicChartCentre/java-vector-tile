@@ -48,6 +48,10 @@ public class VectorTileEncoder {
     private final Map<String, Layer> layers = new LinkedHashMap<String, Layer>();
 
     private final int extent;
+    
+    private final double minimumLength;
+    
+    private final double minimumArea;
 
     private final Geometry clipGeometry;
 
@@ -112,6 +116,8 @@ public class VectorTileEncoder {
     public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale, boolean autoincrementIds, double simplificationDistanceTolerance) {
         this.extent = extent;
         this.autoScale = autoScale;
+        this.minimumLength = autoScale ? (256.0 / extent) : 1.0;
+        this.minimumArea = this.minimumLength * this.minimumLength;
         this.autoincrementIds = autoincrementIds;
         this.autoincrement = 1;
         this.simplificationDistanceTolerance = simplificationDistanceTolerance;
@@ -133,7 +139,7 @@ public class VectorTileEncoder {
     public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry) {
         this.addFeature(layerName, attributes, geometry, this.autoincrementIds ? this.autoincrement++ : -1);
     }
-
+    
     /**
      * Add a feature with layer name (typically feature type name), some attributes
      * and a Geometry. The Geometry must be in "pixel" space 0,0 upper left and
@@ -148,18 +154,18 @@ public class VectorTileEncoder {
      * @param id
      */
     public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry, long id) {
-        
+
         // skip small Polygon/LineString.
-        if (geometry instanceof MultiPolygon && geometry.getArea() < 1.0d) {
+        if (geometry instanceof MultiPolygon && geometry.getArea() < minimumArea) {
             return;
         }
-        if (geometry instanceof Polygon && geometry.getArea() < 1.0d) {
+        if (geometry instanceof Polygon && geometry.getArea() < minimumArea) {
             return;
         }
-        if (geometry instanceof LineString && geometry.getLength() < 1.0d) {
+        if (geometry instanceof LineString && geometry.getLength() < minimumLength) {
             return;
         }
-        
+
         // special handling of GeometryCollection. subclasses are not handled here.
         if (geometry.getClass().equals(GeometryCollection.class)) {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
