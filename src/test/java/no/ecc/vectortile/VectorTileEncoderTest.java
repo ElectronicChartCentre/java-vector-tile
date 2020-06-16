@@ -126,6 +126,36 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(9, commands.size());
 
     }
+    
+    public void testPolygonCommandsReverse() {
+        
+        // https://github.com/mapbox/vector-tile-spec/blob/master/2.1/README.md
+
+        // Ex.: MoveTo(3, 6), LineTo(8, 12), LineTo(20, 34), ClosePath
+        List<Coordinate> cs = new ArrayList<Coordinate>();
+        cs.add(new Coordinate(3, 6));
+        cs.add(new Coordinate(8, 12));
+        cs.add(new Coordinate(20, 34));
+        cs.add(new Coordinate(3, 6));
+        Collections.reverse(cs);
+        Polygon polygon = gf.createPolygon(cs.toArray(new Coordinate[cs.size()]));
+
+        List<Integer> commands = new VectorTileEncoder(256).commands(polygon);
+        assertNotNull(commands);
+        // Encoded as: [ 9 6 12 18 10 12 24 44 15 ]
+        assertCommand(9, commands, 0);
+        assertCommand(6, commands, 1);
+        assertCommand(12, commands, 2);
+        assertCommand(18, commands, 3);
+        assertCommand(10, commands, 4);
+        assertCommand(12, commands, 5);
+        assertCommand(24, commands, 6);
+        assertCommand(44, commands, 7);
+        assertCommand(15, commands, 8);
+        assertEquals(9, commands.size());
+
+    }
+
 
 
     public void testCommandsFilter() {
