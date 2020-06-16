@@ -30,13 +30,13 @@ byte[] encoded = encoder.encode();
 ```
 <repository>
     <id>ECC</id>
-    <url>https://github.com/ElectronicChartCentre/ecc-mvn-repo/raw/master/releases</url>
+    <url>https://maven.ecc.no/releases</url>
 </repository>
 
 <dependency>
     <groupId>no.ecc.vectortile</groupId>
     <artifactId>java-vector-tile</artifactId>
-    <version>1.3.7</version>
+    <version>1.3.8</version>
 </dependency>
 ```
 
