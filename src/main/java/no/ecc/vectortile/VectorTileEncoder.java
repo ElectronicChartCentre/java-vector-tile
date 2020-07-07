@@ -109,9 +109,9 @@ public class VectorTileEncoder {
      * @param autoincrementIds
      * @param simplificationDistanceTolerance
      *            a positive double representing the distance tolerance to be used
-     *            for non-points before (optional) scaling and encoding. A value <=
-     *            0 will prevent simplifying geometry. 0.1 seem to be a good value
-     *            when autoScale is turned on.
+     *            for non-points before (optional) scaling and encoding. A value
+     *            &lt;=0 will prevent simplifying geometry. 0.1 seems to be a good
+     *            value when {@code autoScale} is turned on.
      */
     public VectorTileEncoder(int extent, int clipBuffer, boolean autoScale, boolean autoincrementIds, double simplificationDistanceTolerance) {
         this.extent = extent;
