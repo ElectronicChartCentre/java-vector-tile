@@ -74,6 +74,8 @@ public class VectorTileEncoder {
     /**
      * Create a {@link VectorTileEncoder} with the given extent and a clip
      * buffer of 8.
+     * 
+     * @param extent a int to specify vector tile extent. 4096 is a good value.
      */
     public VectorTileEncoder(int extent) {
         this(extent, 8, true);
@@ -106,7 +108,9 @@ public class VectorTileEncoder {
      *            will scale them automatically to the 0..extent-1 range before
      *            encoding. when false, the encoder expects coordinates in the
      *            0..extent-1 range.
-     * @param autoincrementIds
+     * @param autoincrementIds 
+     *            when true the vector tile feature id is auto incremented when using 
+     *            {@link #addFeature(String, Map, Geometry)}
      * @param simplificationDistanceTolerance
      *            a positive double representing the distance tolerance to be used
      *            for non-points before (optional) scaling and encoding. A value
@@ -148,10 +152,10 @@ public class VectorTileEncoder {
      * For optimization, geometries will be clipped and simplified. Features with
      * geometries outside of the tile will be skipped.
      *
-     * @param layerName
-     * @param attributes
-     * @param geometry
-     * @param id
+     * @param layerName a {@link String} with the vector tile layer name.
+     * @param attributes a {@link Map} with the vector tile feature attributes.
+     * @param geometry a {@link Geometry} for the vector tile feature.
+     * @param id a long with the vector tile feature id field.
      */
     public void addFeature(String layerName, Map<String, ?> attributes, Geometry geometry, long id) {
 
@@ -223,7 +227,8 @@ public class VectorTileEncoder {
      * points to improve performance. This method can be overridden to change
      * clipping behavior. See also {@link #clipGeometry(Geometry)}.
      * 
-     * @see https://github.com/ElectronicChartCentre/java-vector-tile/issues/13
+     * @param geom a {@link Geometry} to check for "covers"
+     * @return a boolean true when the current clip geometry covers the given geom.
      */
     protected boolean clipCovers(Geometry geom) {
         if (geom instanceof Point) {
@@ -238,8 +243,8 @@ public class VectorTileEncoder {
      * can be overridden to change clipping behavior. See also
      * {@link #clipCovers(Geometry)}.
      *
-     * @param geometry
-     * @return
+     * @param geometry a {@link Geometry} to check for intersection with the current clip geometry
+     * @return a boolean true when current clip geometry intersects with the given geometry.
      */
     protected Geometry clipGeometry(Geometry geometry) {
         try {
