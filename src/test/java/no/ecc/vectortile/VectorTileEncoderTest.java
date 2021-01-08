@@ -19,6 +19,9 @@
 package no.ecc.vectortile;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +38,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 import junit.framework.TestCase;
 import no.ecc.vectortile.VectorTileDecoder.Feature;
@@ -517,7 +522,6 @@ public class VectorTileEncoderTest extends TestCase {
                 .symDifference(gf.createPoint(new Coordinate(24, 25)).buffer(1.0));
         MultiPolygon mp = gf.createMultiPolygon(polygons);
         assertTrue(mp.isValid());
-        System.out.println(mp.toString());
 
         Map<String, String> attributes = Collections.singletonMap("key1", "value1");
 
@@ -552,6 +556,36 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(2, features.size());
         assertTrue(features.get(0).getGeometry() instanceof Polygon);
         assertTrue(features.get(1).getGeometry() instanceof Point);
+    }
+    
+    public void testPolygonClippingValidity() throws IOException, ParseException {
+        WKTReader wktReader = new WKTReader(gf);
+        try (Reader r1 = new InputStreamReader(getClass().getResourceAsStream("/polygon-clipping-1.wkt"),
+                StandardCharsets.UTF_8);
+                Reader r2 = new InputStreamReader(getClass().getResourceAsStream("/polygon-clipping-2.wkt"),
+                        StandardCharsets.UTF_8)) {
+            Geometry g1 = wktReader.read(r1);
+            Geometry g2 = wktReader.read(r2);
+            assertTrue(g1.isValid());
+            assertTrue(g2.isValid());
+
+            Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+
+            VectorTileEncoder encoder = new VectorTileEncoder(4096, 8, true, false, 0.1);
+            encoder.addFeature("pc", attributes, g1);
+            encoder.addFeature("pc", attributes, g2);
+
+            byte[] encoded = encoder.encode();
+            assertTrue(encoded.length > 0);
+
+            VectorTileDecoder decoder = new VectorTileDecoder();
+            List<Feature> features = decoder.decode(encoded).asList();
+            assertEquals(2, features.size());
+            assertTrue(features.get(0).getGeometry().isValid());
+            assertFalse(features.get(0).getGeometry().isEmpty());
+            assertTrue(features.get(1).getGeometry().isValid());
+            assertFalse(features.get(1).getGeometry().isEmpty());
+        }
     }
 
     private List<Feature> encodeDecodeFeatures(VectorTileEncoder vtm) throws IOException {

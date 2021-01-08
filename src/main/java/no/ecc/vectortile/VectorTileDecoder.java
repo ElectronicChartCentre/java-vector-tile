@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
 import vector_tile.VectorTile;
+import vector_tile.VectorTile.Tile.GeomType;
 import vector_tile.VectorTile.Tile.Layer;
 
 public class VectorTileDecoder {
@@ -85,6 +86,126 @@ public class VectorTileDecoder {
 
     static int zigZagDecode(int n) {
         return ((n >> 1) ^ (-(n & 1)));
+    }
+    
+    static Geometry decodeGeometry(GeometryFactory gf, GeomType geomType, List<Integer> commands, double scale) {
+        int x = 0;
+        int y = 0;
+
+        List<List<Coordinate>> coordsList = new ArrayList<List<Coordinate>>();
+        List<Coordinate> coords = null;
+
+        int geometryCount = commands.size();
+        int length = 0;
+        int command = 0;
+        int i = 0;
+        while (i < geometryCount) {
+
+            if (length <= 0) {
+                length = commands.get(i++).intValue();
+                command = length & ((1 << 3) - 1);
+                length = length >> 3;
+            }
+
+            if (length > 0) {
+
+                if (command == Command.MoveTo) {
+                    coords = new ArrayList<Coordinate>();
+                    coordsList.add(coords);
+                }
+
+                if (command == Command.ClosePath) {
+                    if (geomType != VectorTile.Tile.GeomType.POINT && !coords.isEmpty()) {
+                        coords.add(coords.get(0));
+                    }
+                    length--;
+                    continue;
+                }
+
+                int dx = commands.get(i++).intValue();
+                int dy = commands.get(i++).intValue();
+
+                length--;
+
+                dx = zigZagDecode(dx);
+                dy = zigZagDecode(dy);
+
+                x = x + dx;
+                y = y + dy;
+
+                Coordinate coord = new Coordinate(x / scale, y / scale);
+                coords.add(coord);
+            }
+
+        }
+
+        Geometry geometry = null;
+
+        switch (geomType) {
+        case LINESTRING:
+            List<LineString> lineStrings = new ArrayList<LineString>();
+            for (List<Coordinate> cs : coordsList) {
+                if (cs.size() <= 1) {
+                    continue;
+                }
+                lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
+            }
+            if (lineStrings.size() == 1) {
+                geometry = lineStrings.get(0);
+            } else if (lineStrings.size() > 1) {
+                geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
+            }
+            break;
+        case POINT:
+            List<Coordinate> allCoords = new ArrayList<Coordinate>();
+            for (List<Coordinate> cs : coordsList) {
+                allCoords.addAll(cs);
+            }
+            if (allCoords.size() == 1) {
+                geometry = gf.createPoint(allCoords.get(0));
+            } else if (allCoords.size() > 1) {
+                geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
+            }
+            break;
+        case POLYGON:
+            List<List<LinearRing>> polygonRings = new ArrayList<List<LinearRing>>();
+            List<LinearRing> ringsForCurrentPolygon = new ArrayList<LinearRing>();
+            for (List<Coordinate> cs : coordsList) {
+                // skip hole with too few coordinates
+                if (ringsForCurrentPolygon.size() > 0 && cs.size() < 4) {
+                    continue;
+                }
+                LinearRing ring = gf.createLinearRing(cs.toArray(new Coordinate[cs.size()]));
+                if (CGAlgorithms.isCCW(ring.getCoordinates())) {
+                    ringsForCurrentPolygon = new ArrayList<LinearRing>();
+                    polygonRings.add(ringsForCurrentPolygon);
+                }
+                ringsForCurrentPolygon.add(ring);
+            }
+            List<Polygon> polygons = new ArrayList<Polygon>();
+            for (List<LinearRing> rings : polygonRings) {
+                LinearRing shell = rings.get(0);
+                LinearRing[] holes = rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]);
+                polygons.add(gf.createPolygon(shell, holes));
+            }
+            if (polygons.size() == 1) {
+                geometry = polygons.get(0);
+            }
+            if (polygons.size() > 1) {
+                geometry = gf.createMultiPolygon(GeometryFactory.toPolygonArray(polygons));
+            }
+            break;
+        case UNKNOWN:
+            break;
+        default:
+            break;
+        }
+
+        if (geometry == null) {
+            geometry = gf.createGeometryCollection(new Geometry[0]);
+        }
+
+        return geometry;
     }
 
     public static final class FeatureIterable implements Iterable<Feature> {
@@ -236,119 +357,8 @@ public class VectorTileDecoder {
                 Object value = values.get(feature.getTags(tagIdx++));
                 attributes.put(key, value);
             }
-
-            int x = 0;
-            int y = 0;
-
-            List<List<Coordinate>> coordsList = new ArrayList<List<Coordinate>>();
-            List<Coordinate> coords = null;
-
-            int geometryCount = feature.getGeometryCount();
-            int length = 0;
-            int command = 0;
-            int i = 0;
-            while (i < geometryCount) {
-
-                if (length <= 0) {
-                    length = feature.getGeometry(i++);
-                    command = length & ((1 << 3) - 1);
-                    length = length >> 3;
-                }
-
-                if (length > 0) {
-
-                    if (command == Command.MoveTo) {
-                        coords = new ArrayList<Coordinate>();
-                        coordsList.add(coords);
-                    }
-
-                    if (command == Command.ClosePath) {
-                        if (feature.getType() != VectorTile.Tile.GeomType.POINT && !coords.isEmpty()) {
-                            coords.add(coords.get(0));
-                        }
-                        length--;
-                        continue;
-                    }
-
-                    int dx = feature.getGeometry(i++);
-                    int dy = feature.getGeometry(i++);
-
-                    length--;
-
-                    dx = zigZagDecode(dx);
-                    dy = zigZagDecode(dy);
-
-                    x = x + dx;
-                    y = y + dy;
-
-                    Coordinate coord = new Coordinate(x / scale, y / scale);
-                    coords.add(coord);
-                }
-
-            }
-
-            Geometry geometry = null;
-
-            switch (feature.getType()) {
-            case LINESTRING:
-                List<LineString> lineStrings = new ArrayList<LineString>();
-                for (List<Coordinate> cs : coordsList) {
-                    if (cs.size() <= 1) {
-                        continue;
-                    }
-                    lineStrings.add(gf.createLineString(cs.toArray(new Coordinate[cs.size()])));
-                }
-                if (lineStrings.size() == 1) {
-                    geometry = lineStrings.get(0);
-                } else if (lineStrings.size() > 1) {
-                    geometry = gf.createMultiLineString(lineStrings.toArray(new LineString[lineStrings.size()]));
-                }
-                break;
-            case POINT:
-                List<Coordinate> allCoords = new ArrayList<Coordinate>();
-                for (List<Coordinate> cs : coordsList) {
-                    allCoords.addAll(cs);
-                }
-                if (allCoords.size() == 1) {
-                    geometry = gf.createPoint(allCoords.get(0));
-                } else if (allCoords.size() > 1) {
-                    geometry = gf.createMultiPoint(allCoords.toArray(new Coordinate[allCoords.size()]));
-                }
-                break;
-            case POLYGON:
-                List<List<LinearRing>> polygonRings = new ArrayList<List<LinearRing>>();
-                List<LinearRing> ringsForCurrentPolygon = new ArrayList<LinearRing>();
-                for (List<Coordinate> cs : coordsList) {
-                    // skip hole with too few coordinates
-                    if (ringsForCurrentPolygon.size() > 0 && cs.size() < 4) {
-                        continue;
-                    }
-                    LinearRing ring = gf.createLinearRing(cs.toArray(new Coordinate[cs.size()]));
-                    if (CGAlgorithms.isCCW(ring.getCoordinates())) {
-                        ringsForCurrentPolygon = new ArrayList<LinearRing>();
-                        polygonRings.add(ringsForCurrentPolygon);
-                    }
-                    ringsForCurrentPolygon.add(ring);
-                }
-                List<Polygon> polygons = new ArrayList<Polygon>();
-                for (List<LinearRing> rings : polygonRings) {
-                    LinearRing shell = rings.get(0);
-                    LinearRing[] holes = rings.subList(1, rings.size()).toArray(new LinearRing[rings.size() - 1]);
-                    polygons.add(gf.createPolygon(shell, holes));
-                }
-                if (polygons.size() == 1) {
-                    geometry = polygons.get(0);
-                }
-                if (polygons.size() > 1) {
-                    geometry = gf.createMultiPolygon(GeometryFactory.toPolygonArray(polygons));
-                }
-                break;
-            case UNKNOWN:
-                break;
-            default:
-                break;
-            }
-
+            
+            Geometry geometry = decodeGeometry(gf, feature.getType(), feature.getGeometryList(), scale);
             if (geometry == null) {
                 geometry = gf.createGeometryCollection(new Geometry[0]);
             }
