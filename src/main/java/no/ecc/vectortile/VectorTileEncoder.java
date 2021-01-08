@@ -39,9 +39,11 @@ import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 
 import vector_tile.VectorTile;
+import vector_tile.VectorTile.Tile.GeomType;
 
 public class VectorTileEncoder {
 
@@ -62,6 +64,8 @@ public class VectorTileEncoder {
     private final boolean autoincrementIds;
     
     private final double simplificationDistanceTolerance;
+    
+    private final GeometryFactory gf = new GeometryFactory();
 
     /**
      * Create a {@link VectorTileEncoder} with the default extent of 4096 and
@@ -319,12 +323,28 @@ public class VectorTileEncoder {
                 if (feature.id >= 0) {
                     featureBuilder.setId(feature.id);
                 }
-
-                featureBuilder.setType(toGeomType(geometry));
                 
+                GeomType geomType = toGeomType(geometry);
                 x = 0;
                 y = 0;
-                featureBuilder.addAllGeometry(commands(geometry));
+                List<Integer> commands = commands(geometry);
+
+                // Extra step to parse and check validity and try to repair. Probably expensive.
+                if (simplificationDistanceTolerance > 0.0 && geomType == GeomType.POLYGON) {
+                    double scale = autoScale ? (extent / 256.0) : 1.0;
+                    Geometry decodedGeometry = VectorTileDecoder.decodeGeometry(gf, geomType, commands, scale);
+                    if (!decodedGeometry.isValid()) {
+                        // Invalid. Try more simplification and without preserving topology.
+                        geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance * 2.0);
+                        geomType = toGeomType(geometry);
+                        x = 0;
+                        y = 0;
+                        commands = commands(geometry);
+                    }
+                }
+                
+                featureBuilder.setType(geomType);
+                featureBuilder.addAllGeometry(commands);
 
                 tileLayer.addFeatures(featureBuilder.build());
             }
