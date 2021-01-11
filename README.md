@@ -36,7 +36,7 @@ byte[] encoded = encoder.encode();
 <dependency>
     <groupId>no.ecc.vectortile</groupId>
     <artifactId>java-vector-tile</artifactId>
-    <version>1.3.11</version>
+    <version>1.3.12</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ byte[] encoded = encoder.encode();
 <dependency>
     <groupId>no.ecc.vectortile</groupId>
     <artifactId>java-vector-tile</artifactId>
-    <version>1.2.7</version>
+    <version>1.2.9</version>
 </dependency>
 ```
 
