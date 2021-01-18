@@ -331,6 +331,9 @@ public class VectorTileEncoder {
                     if (!decodedGeometry.isValid()) {
                         // Invalid. Try more simplification and without preserving topology.
                         geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance * 2.0);
+                        if (geometry.isEmpty()) {
+                            continue;
+                        }
                         geomType = toGeomType(geometry);
                         x = 0;
                         y = 0;

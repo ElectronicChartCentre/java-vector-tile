@@ -171,6 +171,10 @@ public class VectorTileDecoder {
             List<List<LinearRing>> polygonRings = new ArrayList<List<LinearRing>>();
             List<LinearRing> ringsForCurrentPolygon = new ArrayList<LinearRing>();
             for (List<Coordinate> cs : coordsList) {
+                // skip exterior with too few coordinates
+                if (ringsForCurrentPolygon.isEmpty() && cs.size() < 4) {
+                    break;
+                }
                 // skip hole with too few coordinates
                 if (ringsForCurrentPolygon.size() > 0 && cs.size() < 4) {
                     continue;
