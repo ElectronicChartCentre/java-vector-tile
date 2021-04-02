@@ -116,7 +116,7 @@ public class VectorTileDecoder {
 
                 if (command == Command.ClosePath) {
                     if (geomType != VectorTile.Tile.GeomType.POINT && !coords.isEmpty()) {
-                        coords.add(coords.get(0));
+                        coords.add(new Coordinate(coords.get(0)));
                     }
                     length--;
                     continue;
