@@ -37,6 +37,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 
 public class VectorTileDecoderTest extends TestCase {
 
@@ -180,7 +181,14 @@ public class VectorTileDecoderTest extends TestCase {
         assertEquals(layerName, d.decode(encoded).getLayerNames().iterator().next());
 
         assertEquals(attributes, d.decode(encoded, layerName).asList().get(0).getAttributes());
-        assertEquals(geometry, d.decode(encoded, layerName).asList().get(0).getGeometry());
+
+        Geometry decodedGeometry = d.decode(encoded, layerName).asList().get(0).getGeometry();
+        assertEquals(geometry, decodedGeometry);
+        
+        LinearRing decodedShell = ((Polygon)decodedGeometry).getExteriorRing();
+        // Shell is closed with different point instances
+        assertTrue(decodedShell.getCoordinateN(0).equals2D(decodedShell.getCoordinateN(decodedShell.getNumPoints() - 1)));
+        assertFalse(decodedShell.getCoordinateN(0) == decodedShell.getCoordinateN(decodedShell.getNumPoints() - 1));
 
     }
 
