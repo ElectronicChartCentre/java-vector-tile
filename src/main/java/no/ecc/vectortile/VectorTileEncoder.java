@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -37,6 +38,8 @@ import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.locationtech.jts.geom.TopologyException;
+import org.locationtech.jts.geom.prep.PreparedGeometry;
+import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
@@ -56,6 +59,10 @@ public class VectorTileEncoder {
     private final double minimumArea;
 
     private final Geometry clipGeometry;
+    
+    private final Envelope clipEnvelope;
+    
+    private final PreparedGeometry clipGeometryPrepared;
 
     private final boolean autoScale;
 
@@ -132,6 +139,8 @@ public class VectorTileEncoder {
 
         final int size = autoScale ? 256 : extent;
         clipGeometry = createTileEnvelope(clipBuffer, size);
+        clipEnvelope = clipGeometry.getEnvelopeInternal();
+        clipGeometryPrepared = PreparedGeometryFactory.prepare(clipGeometry);
     }
 
     private static Geometry createTileEnvelope(int buffer, int size) {
@@ -183,7 +192,27 @@ public class VectorTileEncoder {
             }
             return;
         }
-
+        
+        // About to simplify and clip. Looks like simplification before clipping is
+        // faster than clipping before simplification
+        
+        // simplify non-points
+        if (simplificationDistanceTolerance > 0.0 && !(geometry instanceof Point)) {
+            if (geometry instanceof LineString || geometry instanceof MultiLineString) {
+                geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance);
+            } else if (geometry instanceof Polygon || geometry instanceof MultiPolygon) {
+                Geometry simplified = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance);
+                // extra check to prevent polygon converted to line
+                if (simplified instanceof Polygon || simplified instanceof MultiPolygon) {
+                    geometry = simplified;
+                } else {
+                    geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
+                }
+            } else {
+                geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
+            }
+        }
+        
         // clip geometry
         if (geometry instanceof Point) {
             if (!clipCovers(geometry)) {
@@ -191,11 +220,6 @@ public class VectorTileEncoder {
             }
         } else {
             geometry = clipGeometry(geometry);
-        }
-        
-        // simplify non-points
-        if (simplificationDistanceTolerance > 0.0 && !(geometry instanceof Point)) {
-            geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
         }
 
         // no need to add empty geometry
@@ -239,7 +263,7 @@ public class VectorTileEncoder {
             Point p = (Point) geom;
             return clipGeometry.getEnvelopeInternal().covers(p.getCoordinate());
         }
-        return clipGeometry.covers(geom);
+        return clipEnvelope.covers(geom.getEnvelopeInternal());
     }
 
     /**
@@ -252,12 +276,16 @@ public class VectorTileEncoder {
      */
     protected Geometry clipGeometry(Geometry geometry) {
         try {
+            if (clipEnvelope.contains(geometry.getEnvelopeInternal())) {
+                return geometry;
+            }
+            
             Geometry original = geometry;
             geometry = clipGeometry.intersection(original);
 
             // some times a intersection is returned as an empty geometry.
             // going via wkt fixes the problem.
-            if (geometry.isEmpty() && original.intersects(clipGeometry)) {
+            if (geometry.isEmpty() && clipGeometryPrepared.intersects(original)) {
                 Geometry originalViaWkt = new WKTReader().read(original.toText());
                 geometry = clipGeometry.intersection(originalViaWkt);
             }
