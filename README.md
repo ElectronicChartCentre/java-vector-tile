@@ -25,7 +25,6 @@ byte[] encoded = encoder.encode();
 ```
 
 ## Maven - with JTS from LocationTech
-=======
 
 ```
 <repository>
