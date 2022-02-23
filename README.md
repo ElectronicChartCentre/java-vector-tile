@@ -24,7 +24,7 @@ encoder.addFeature("road", attributes, geometry, id);
 byte[] encoded = encoder.encode();
 ```
 
-## Maven - with JTS from LocationTech
+## Maven
 
 ```
 <repository>
@@ -35,25 +35,9 @@ byte[] encoded = encoder.encode();
 <dependency>
     <groupId>no.ecc.vectortile</groupId>
     <artifactId>java-vector-tile</artifactId>
-    <version>1.3.15</version>
+    <version>1.3.16</version>
 </dependency>
 ```
-
-## Maven - with JTS from Vividsolutions
-
-```
-<repository>
-    <id>ECC</id>
-    <url>https://github.com/ElectronicChartCentre/ecc-mvn-repo/raw/master/releases</url>
-</repository>
-
-<dependency>
-    <groupId>no.ecc.vectortile</groupId>
-    <artifactId>java-vector-tile</artifactId>
-    <version>1.2.11</version>
-</dependency>
-```
-
 
 ## Generate VectorTile.java
 
