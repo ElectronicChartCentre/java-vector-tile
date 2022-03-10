@@ -182,9 +182,6 @@ public class VectorTileDecoder {
                     ccw = thisCcw;
                 }
                 LinearRing ring = gf.createLinearRing(ringCoords);
-                if (ccw) {
-                    ring = ring.reverse();
-                }
                 if (ccw == thisCcw) {
                     if (ringsForCurrentPolygon != null) {
                         polygonRings.add(ringsForCurrentPolygon);

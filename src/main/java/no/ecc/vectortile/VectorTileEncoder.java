@@ -457,14 +457,14 @@ public class VectorTileEncoder {
         // So, the code below will make sure that exterior ring is in counter-clockwise order
         // and interior ring in clockwise order.
         LineString exteriorRing = polygon.getExteriorRing();
-        if (Area.ofRingSigned(exteriorRing.getCoordinates()) < 0) {
+        if (Area.ofRingSigned(exteriorRing.getCoordinates()) > 0) {
             exteriorRing = exteriorRing.reverse();
         }
         commands.addAll(commands(exteriorRing.getCoordinates(), true));
 
         for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
             LineString interiorRing = polygon.getInteriorRingN(i);
-            if (Area.ofRingSigned(interiorRing.getCoordinates()) > 0) {
+            if (Area.ofRingSigned(interiorRing.getCoordinates()) < 0) {
                 interiorRing = interiorRing.reverse();
             }
             commands.addAll(commands(interiorRing.getCoordinates(), true));
