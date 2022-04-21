@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.locationtech.jts.algorithm.Orientation;
+import org.locationtech.jts.algorithm.Area;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -169,23 +169,31 @@ public class VectorTileDecoder {
             break;
         case POLYGON:
             List<List<LinearRing>> polygonRings = new ArrayList<List<LinearRing>>();
-            List<LinearRing> ringsForCurrentPolygon = new ArrayList<LinearRing>();
+            List<LinearRing> ringsForCurrentPolygon = null;
+            Boolean ccw = null;
             for (List<Coordinate> cs : coordsList) {
-                // skip exterior with too few coordinates
-                if (ringsForCurrentPolygon.isEmpty() && cs.size() < 4) {
-                    break;
-                }
-                // skip hole with too few coordinates
-                if (ringsForCurrentPolygon.size() > 0 && cs.size() < 4) {
+                Coordinate[] ringCoords = cs.toArray(new Coordinate[cs.size()]);
+                double area = Area.ofRingSigned(ringCoords);
+                if (area == 0) {
                     continue;
                 }
-                LinearRing ring = gf.createLinearRing(cs.toArray(new Coordinate[cs.size()]));
-                if (Orientation.isCCW(ring.getCoordinates())) {
-                    ringsForCurrentPolygon = new ArrayList<LinearRing>();
-                    polygonRings.add(ringsForCurrentPolygon);
+                boolean thisCcw = area < 0;
+                if (ccw == null) {
+                    ccw = thisCcw;
+                }
+                LinearRing ring = gf.createLinearRing(ringCoords);
+                if (ccw == thisCcw) {
+                    if (ringsForCurrentPolygon != null) {
+                        polygonRings.add(ringsForCurrentPolygon);
+                    }
+                    ringsForCurrentPolygon = new ArrayList<>();
                 }
                 ringsForCurrentPolygon.add(ring);
             }
+            if (ringsForCurrentPolygon != null) {
+                polygonRings.add(ringsForCurrentPolygon);
+            }
+
             List<Polygon> polygons = new ArrayList<Polygon>();
             for (List<LinearRing> rings : polygonRings) {
                 LinearRing shell = rings.get(0);

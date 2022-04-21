@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.locationtech.jts.algorithm.Orientation;
+import org.locationtech.jts.algorithm.Area;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
@@ -457,15 +457,15 @@ public class VectorTileEncoder {
         // So, the code below will make sure that exterior ring is in counter-clockwise order
         // and interior ring in clockwise order.
         LineString exteriorRing = polygon.getExteriorRing();
-        if (!Orientation.isCCW(exteriorRing.getCoordinates())) {
-            exteriorRing = (LineString) exteriorRing.reverse();
+        if (Area.ofRingSigned(exteriorRing.getCoordinates()) > 0) {
+            exteriorRing = exteriorRing.reverse();
         }
         commands.addAll(commands(exteriorRing.getCoordinates(), true));
 
         for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
             LineString interiorRing = polygon.getInteriorRingN(i);
-            if (Orientation.isCCW(interiorRing.getCoordinates())) {
-                interiorRing = (LineString) interiorRing.reverse();
+            if (Area.ofRingSigned(interiorRing.getCoordinates()) < 0) {
+                interiorRing = interiorRing.reverse();
             }
             commands.addAll(commands(interiorRing.getCoordinates(), true));
         }
