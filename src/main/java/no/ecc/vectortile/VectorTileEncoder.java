@@ -431,7 +431,15 @@ public class VectorTileEncoder {
     List<Integer> commands(MultiLineString mls) {
         List<Integer> commands = new ArrayList<Integer>();
         for (int i = 0; i < mls.getNumGeometries(); i++) {
-            commands.addAll(commands(mls.getGeometryN(i).getCoordinates(), false));
+            final List<Integer> geomCommands =
+                    commands(mls.getGeometryN(i).getCoordinates(), false);
+            if (geomCommands.size() > 3) {
+                // if the geometry consists of all identical points (after Math.round()) commands
+                // returns a single move_to command, which is not valid according to the vector tile
+                // specifications.
+                // (https://github.com/mapbox/vector-tile-spec/tree/master/2.1#4343-linestring-geometry-type)
+                commands.addAll(geomCommands);
+            }
         }
         return commands;
     }
