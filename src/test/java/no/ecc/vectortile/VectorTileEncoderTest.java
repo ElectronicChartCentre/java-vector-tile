@@ -34,7 +34,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryCollection;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -536,6 +538,30 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals(1, features.size());
         MultiPolygon mp2 = (MultiPolygon) features.get(0).getGeometry();
         assertEquals(mp.getNumGeometries(), mp2.getNumGeometries());
+    }
+    
+    public void testMultiLineString() throws IOException {
+        
+        // create MultiLineString with 3 LineStrings. The last one is very short.
+        LineString[] lineStrings = new LineString[3];
+        lineStrings[0] = gf.createLineString(new Coordinate[] {new Coordinate(3, 6), new Coordinate(4, 7)});
+        lineStrings[1] = gf.createLineString(new Coordinate[] {new Coordinate(13, 16), new Coordinate(14, 17)});
+        lineStrings[2] = gf.createLineString(new Coordinate[] {new Coordinate(23, 26), new Coordinate(23.0000000001, 26.0000000001)});
+        MultiLineString multiLineString = gf.createMultiLineString(lineStrings);
+        
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+        vtm.addFeature("mp", attributes, multiLineString);
+
+        byte[] encoded = vtm.encode();
+        assertTrue(encoded.length > 0);
+
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        List<Feature> features = decoder.decode(encoded).asList();
+        assertEquals(1, features.size());
+        MultiLineString multiLineString2 = (MultiLineString) features.get(0).getGeometry();
+        assertEquals(2, multiLineString2.getNumGeometries());
     }
 
     public void testGeometryCollection() throws IOException {
