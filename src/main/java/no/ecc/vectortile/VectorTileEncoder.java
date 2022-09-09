@@ -361,7 +361,7 @@ public class VectorTileEncoder {
                 if (simplificationDistanceTolerance > 0.0 && geomType == GeomType.POLYGON) {
                     double scale = autoScale ? (extent / 256.0) : 1.0;
                     Geometry decodedGeometry = VectorTileDecoder.decodeGeometry(gf, geomType, commands, scale);
-                    if (!decodedGeometry.isValid()) {
+                    if (!isValid(decodedGeometry)) {
                         // Invalid. Try more simplification and without preserving topology.
                         geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance * 2.0);
                         if (geometry.isEmpty()) {
@@ -385,6 +385,14 @@ public class VectorTileEncoder {
         }
 
         return tile.build().toByteArray();
+    }
+
+    private static final boolean isValid(Geometry geometry) {
+        try {
+            return geometry.isValid();
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     static VectorTile.Tile.GeomType toGeomType(Geometry geometry) {
