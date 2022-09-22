@@ -58,11 +58,11 @@ public class VectorTileEncoder {
     
     private final double minimumArea;
 
-    private final Geometry clipGeometry;
+    protected final Geometry clipGeometry;
     
-    private final Envelope clipEnvelope;
+    protected final Envelope clipEnvelope;
     
-    private final PreparedGeometry clipGeometryPrepared;
+    protected final PreparedGeometry clipGeometryPrepared;
 
     private final boolean autoScale;
 
@@ -223,7 +223,7 @@ public class VectorTileEncoder {
         }
 
         // no need to add empty geometry
-        if (geometry.isEmpty()) {
+        if (geometry == null || geometry.isEmpty()) {
             return;
         }
 
