@@ -35,7 +35,7 @@ byte[] encoded = encoder.encode();
 <dependency>
     <groupId>no.ecc.vectortile</groupId>
     <artifactId>java-vector-tile</artifactId>
-    <version>1.3.17</version>
+    <version>1.3.18</version>
 </dependency>
 ```
 
