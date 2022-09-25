@@ -18,6 +18,7 @@
  ****************************************************************/
 package no.ecc.vectortile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -331,6 +332,10 @@ public class VectorTileEncoder {
                     tileValue.setFloatValue(((Float) value).floatValue());
                 } else if (value instanceof Double) {
                     tileValue.setDoubleValue(((Double) value).doubleValue());
+                } else if (value instanceof BigDecimal) {
+                    tileValue.setStringValue(value.toString());
+                } else if (value instanceof Number) {
+                    tileValue.setDoubleValue(((Number) value).doubleValue());
                 } else if (value instanceof Boolean) {
                     tileValue.setBoolValue(((Boolean) value).booleanValue());
                 } else {

@@ -21,6 +21,7 @@ package no.ecc.vectortile;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -383,6 +384,8 @@ public class VectorTileEncoderTest extends TestCase {
         attributes.put("key6", "value6");
         attributes.put("key7", Boolean.TRUE);
         attributes.put("key8", Boolean.FALSE);
+        attributes.put("key9", new StringBasedNumber("0.5"));
+        attributes.put("key10", new BigDecimal("0.6"));
 
         vtm.addFeature("DEPCNT", attributes, geometry);
 
@@ -400,6 +403,8 @@ public class VectorTileEncoderTest extends TestCase {
         assertEquals("value6", decodedAttributes.get("key6"));
         assertEquals(Boolean.TRUE, decodedAttributes.get("key7"));
         assertEquals(Boolean.FALSE, decodedAttributes.get("key8"));
+        assertEquals(0.5, ((Number) decodedAttributes.get("key9")).doubleValue(), 0.00001);
+        assertEquals("0.6", decodedAttributes.get("key10").toString());
     }
 
     public void testProvidedIds() throws IOException {
@@ -621,4 +626,5 @@ public class VectorTileEncoderTest extends TestCase {
         VectorTileDecoder decoder = new VectorTileDecoder();
         return decoder.decode(encoded, "DEPCNT").asList();
     }
+
 }
