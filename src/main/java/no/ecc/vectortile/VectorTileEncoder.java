@@ -362,6 +362,11 @@ public class VectorTileEncoder {
                 y = 0;
                 List<Integer> commands = commands(geometry);
 
+                // skip features with no geometry commands
+                if (commands.isEmpty()) {
+                    continue;
+                }
+
                 // Extra step to parse and check validity and try to repair. Probably expensive.
                 if (simplificationDistanceTolerance > 0.0 && geomType == GeomType.POLYGON) {
                     double scale = autoScale ? (extent / 256.0) : 1.0;
