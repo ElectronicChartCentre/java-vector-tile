@@ -568,6 +568,27 @@ public class VectorTileEncoderTest extends TestCase {
         MultiLineString multiLineString2 = (MultiLineString) features.get(0).getGeometry();
         assertEquals(2, multiLineString2.getNumGeometries());
     }
+    
+    public void testMultiPolygonWithEmptyPart() throws Exception {
+        MultiPolygon geometry = (MultiPolygon) new WKTReader().read(
+                "MULTIPOLYGON (EMPTY, ((147.70055136112322 -8, 147.71411675664058 -7.5098459186265245, 147.97677825666688 -6.98433869658038, 148.51137982615182 -6.501849776483141, 149.59129240407856 -5.887781810946763, 151.0198102649083 -5.695958233787678, 152.07291705237367 -4.79331418313086, 152.68462294520214 -4.664681549649686, 153.30446294776266 -4.928310636430979, 153.6732984502305 -6.1305857404368, 153.7226232951622 -8, 147.70055136112322 -8)))");
+        Polygon polygon = (Polygon) geometry.getGeometryN(1);
+        
+        Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+
+        VectorTileEncoder vtm = new VectorTileEncoder(256);
+        vtm.addFeature("mp", attributes, geometry);
+
+        byte[] encoded = vtm.encode();
+        assertTrue(encoded.length > 0);
+
+        VectorTileDecoder decoder = new VectorTileDecoder();
+        List<Feature> features = decoder.decode(encoded).asList();
+        assertEquals(1, features.size());
+        assertTrue(features.get(0).getGeometry() instanceof Polygon);
+        Polygon decodedPolygon = (Polygon) features.get(0).getGeometry();
+        assertEquals(polygon.getArea(), decodedPolygon.getArea(), 2);
+    }
 
     public void testGeometryCollection() throws IOException {
         Geometry[] geometries = new Geometry[2];

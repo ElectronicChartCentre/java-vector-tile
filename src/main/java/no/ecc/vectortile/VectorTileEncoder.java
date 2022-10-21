@@ -522,7 +522,7 @@ public class VectorTileEncoder {
     List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd, boolean multiPoint) {
 
         if (cs.length == 0) {
-            throw new IllegalArgumentException("empty geometry");
+            return Collections.emptyList();
         }
 
         List<Integer> r = new ArrayList<Integer>();
