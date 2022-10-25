@@ -228,6 +228,15 @@ public class VectorTileEncoder {
             return;
         }
 
+        if (geometry.getClass().equals(GeometryCollection.class)) {
+            for (int i = 0; i < geometry.getNumGeometries(); i++) {
+                Geometry subGeometry = geometry.getGeometryN(i);
+                // keeping the id. any better suggestion?
+                addFeature(layerName, attributes, subGeometry, id);
+            }
+            return;
+        }
+
         Layer layer = layers.get(layerName);
         if (layer == null) {
             layer = new Layer();
