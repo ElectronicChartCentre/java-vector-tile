@@ -228,6 +228,8 @@ public class VectorTileEncoder {
             return;
         }
 
+        // extra check for GeometryCollection after clipping as it can cause
+        // GeometryCollection. Subclasses not handled here.
         if (geometry.getClass().equals(GeometryCollection.class)) {
             for (int i = 0; i < geometry.getNumGeometries(); i++) {
                 Geometry subGeometry = geometry.getGeometryN(i);
