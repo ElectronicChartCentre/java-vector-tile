@@ -314,6 +314,44 @@ public class VectorTileEncoder {
     }
 
     /**
+     * Validate and potentially repair the given {@link List} of commands for the
+     * given {@link Geometry}. Will return a {@link List} of the validated and/or
+     * repaired commands.
+     * <p>
+     * This can be overridden to change behavior. By returning just the incoming
+     * {@link List} of commands instead, the encoding will be faster, but
+     * potentially less safe.
+     * 
+     * @param commands
+     * @param geometry
+     * @return
+     */
+    protected List<Integer> validateAndRepairCommands(List<Integer> commands, Geometry geometry) {
+        if (commands.isEmpty()) {
+            return commands;
+        }
+
+        GeomType geomType = toGeomType(geometry);
+        if (simplificationDistanceTolerance > 0.0 && geomType == GeomType.POLYGON) {
+            double scale = autoScale ? (extent / 256.0) : 1.0;
+            Geometry decodedGeometry = VectorTileDecoder.decodeGeometry(gf, geomType, commands, scale);
+            if (!isValid(decodedGeometry)) {
+                // Invalid. Try more simplification and without preserving topology.
+                geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance * 2.0);
+                if (geometry.isEmpty()) {
+                    Collections.emptyList();
+                }
+                geomType = toGeomType(geometry);
+                x = 0;
+                y = 0;
+                return commands(geometry);
+            }
+        }
+
+        return commands;
+    }
+
+    /**
      * @return a byte array with the vector tile
      */
     public byte[] encode() {
@@ -373,26 +411,12 @@ public class VectorTileEncoder {
                 y = 0;
                 List<Integer> commands = commands(geometry);
 
+                // Extra step to parse and check validity and try to repair.
+                commands = validateAndRepairCommands(commands, geometry);
+
                 // skip features with no geometry commands
                 if (commands.isEmpty()) {
                     continue;
-                }
-
-                // Extra step to parse and check validity and try to repair. Probably expensive.
-                if (simplificationDistanceTolerance > 0.0 && geomType == GeomType.POLYGON) {
-                    double scale = autoScale ? (extent / 256.0) : 1.0;
-                    Geometry decodedGeometry = VectorTileDecoder.decodeGeometry(gf, geomType, commands, scale);
-                    if (!isValid(decodedGeometry)) {
-                        // Invalid. Try more simplification and without preserving topology.
-                        geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance * 2.0);
-                        if (geometry.isEmpty()) {
-                            continue;
-                        }
-                        geomType = toGeomType(geometry);
-                        x = 0;
-                        y = 0;
-                        commands = commands(geometry);
-                    }
                 }
                 
                 featureBuilder.setType(geomType);
