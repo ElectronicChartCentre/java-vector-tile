@@ -29,7 +29,7 @@ byte[] encoded = encoder.encode();
 ```
 <repository>
     <id>ECC</id>
-    <url>https://ecc-mvn.ams3.digitaloceanspaces.com/releases</url>
+    <url>https://maven.ecc.no/releases</url>
 </repository>
 
 <dependency>
