@@ -484,6 +484,8 @@ public class VectorTileEncoder {
     List<Integer> commands(MultiLineString mls) {
         List<Integer> commands = new ArrayList<Integer>();
         for (int i = 0; i < mls.getNumGeometries(); i++) {
+            final int oldX = x;
+            final int oldY = y;
             final List<Integer> geomCommands =
                     commands(mls.getGeometryN(i).getCoordinates(), false);
             if (geomCommands.size() > 3) {
@@ -492,6 +494,10 @@ public class VectorTileEncoder {
                 // specifications.
                 // (https://github.com/mapbox/vector-tile-spec/tree/master/2.1#4343-linestring-geometry-type)
                 commands.addAll(geomCommands);
+            } else {
+                // reset x and y to the previous value
+                x = oldX;
+                y = oldY;
             }
         }
         return commands;
