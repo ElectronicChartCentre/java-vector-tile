@@ -41,9 +41,8 @@ byte[] encoded = encoder.encode();
 
 ## Generate VectorTile.java
 
-```
-protoc --java_out=src/main/java/ src/main/resources/vector_tile.proto
-```
+`VectorTile.java` is generated from `src/main/porobuf/vector_tile.proto` using the `protoc-jar-maven-plugin` plugin.
+Make sure to include the folder `target/generated-sources` in your class path.
 
 ## License
 

@@ -4,3 +4,7 @@
 target
 .DS_Store
 /bin/
+
+.idea/
+
+java-vector-tile.iml
