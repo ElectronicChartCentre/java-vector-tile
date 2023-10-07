@@ -11,6 +11,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <protobuf.version>3.23.2</protobuf.version>
   </properties>
   
   <dependencies>
@@ -24,13 +25,13 @@
     <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
-        <version>3.16.3</version>
+        <version>${protobuf.version}</version>
     </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.1</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -40,7 +41,7 @@
    <plugin>
      <groupId>org.apache.maven.plugins</groupId>
      <artifactId>maven-compiler-plugin</artifactId>
-     <version>3.8.1</version>
+     <version>3.11.0</version>
      <configuration>
        <source>1.8</source>
        <target>1.8</target>
@@ -50,11 +51,29 @@
        <maxmem>${javac.maxHeapSize}</maxmem>
      </configuration>
    </plugin>
+      <plugin>
+          <groupId>com.github.os72</groupId>
+          <artifactId>protoc-jar-maven-plugin</artifactId>
+          <version>3.11.4</version>
+          <executions>
+              <execution>
+                  <phase>generate-sources</phase>
+                  <goals>
+                      <goal>run</goal>
+                  </goals>
+                  <configuration>
+                      <optimizeCodegen>false</optimizeCodegen>
+                      <protocVersion>${protobuf.version}</protocVersion>
+                      <includeStdTypes>true</includeStdTypes>
+                  </configuration>
+              </execution>
+          </executions>
+      </plugin>
    <plugin>
     <inherited>true</inherited>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-source-plugin</artifactId>
-    <version>3.1.0</version>
+    <version>3.2.1</version>
     <configuration>
      <attach>true</attach>
     </configuration>
@@ -71,7 +90,7 @@
    <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-javadoc-plugin</artifactId>
-    <version>3.1.1</version>
+    <version>3.5.0</version>
     <configuration>
      <quiet>true</quiet>
      <source>8</source>
