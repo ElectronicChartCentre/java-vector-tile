@@ -38,11 +38,15 @@ import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.locationtech.jts.geom.TopologyException;
 import org.locationtech.jts.geom.prep.PreparedGeometry;
 import org.locationtech.jts.geom.prep.PreparedGeometryFactory;
+import org.locationtech.jts.geom.util.AffineTransformation;
+import org.locationtech.jts.geom.util.GeometryFixer;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.precision.GeometryPrecisionReducer;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
 
@@ -338,6 +342,33 @@ public class VectorTileEncoder {
             if (!isValid(decodedGeometry)) {
                 // Invalid. Try more simplification and without preserving topology.
                 geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance * 2.0);
+
+                // check again
+                decodedGeometry = VectorTileDecoder.decodeGeometry(gf, geomType, commands, scale);
+                if (!isValid(decodedGeometry)) {
+                    // second attempt at fixing is to see if snapping to integer is causing problems
+
+                    Geometry geom = geometry;
+                    if (autoScale) {
+                        AffineTransformation transform = new AffineTransformation();
+                        transform.scale(scale, scale);
+                        geom = transform.transform(geometry);
+                    }
+
+                    PrecisionModel integerPrecision = new PrecisionModel(1.0);
+                    Geometry quantized = GeometryPrecisionReducer.reducePointwise(geom, integerPrecision);
+                    if (!quantized.isValid()) {
+                        Geometry fixed = GeometryFixer.fix(quantized);
+
+                        if (autoScale) {
+                            AffineTransformation inverse = new AffineTransformation();
+                            inverse.scale(1.0 / scale, 1.0 / scale);
+
+                            geometry = inverse.transform(fixed);
+                        }
+                    }
+                }
+
                 if (geometry.isEmpty()) {
                     Collections.emptyList();
                 }

@@ -665,6 +665,30 @@ public class VectorTileEncoderTest extends TestCase {
         }
     }
 
+    public void testPolygonPrecision() throws IOException, ParseException {
+        WKTReader wktReader = new WKTReader(gf);
+        try (Reader r = new InputStreamReader(getClass().getResourceAsStream("/polygon-precision.wkt"),
+                StandardCharsets.UTF_8)) {
+            Geometry g = wktReader.read(r);
+            assertTrue(g.isValid());
+
+            Map<String, String> attributes = Collections.singletonMap("key1", "value1");
+
+            VectorTileEncoder encoder = new VectorTileEncoder(4096, 8, true, false, 0.08);
+            encoder.addFeature("pc", attributes, g);
+
+            byte[] encoded = encoder.encode();
+            assertTrue(encoded.length > 0);
+
+            VectorTileDecoder decoder = new VectorTileDecoder();
+            List<Feature> features = decoder.decode(encoded).asList();
+            assertEquals(1, features.size());
+            System.out.println(features.get(0).getGeometry().toText());
+            assertTrue(features.get(0).getGeometry().isValid());
+            assertFalse(features.get(0).getGeometry().isEmpty());
+        }
+    }
+
     private List<Feature> encodeDecodeFeatures(VectorTileEncoder vtm) throws IOException {
         byte[] encoded = vtm.encode();
         assertNotSame(0, encoded.length);
